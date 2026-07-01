@@ -7,8 +7,8 @@ __pycache__/
 .openETenv/
 
 # Large Data (don't upload)
-# data/raw/
-# data/intermediate/
+data/raw/
+data/intermediate/
 
 # Generated Results
 # results/
