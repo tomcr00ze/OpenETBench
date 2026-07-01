@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+
+title: "OpenETBench"
+
+message: "If you use OpenETBench in your research, please cite this repository."
+
+type: software
+
+authors:
+  - family-names: Jha
+    given-names: Adarsh
+
+repository-code: "https://github.com/tomcr00ze/OpenETBench"
+
+license: MIT
+
+version: 0.1.0
+
+date-released: 2026-07-01
