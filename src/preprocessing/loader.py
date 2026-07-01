@@ -62,15 +62,17 @@ class Dataset:
 
 def list_csv_files(data_dir: Path) -> list[Path]:
     """
-    Recursively list all CSV files.
+    Recursively list all BharatFlux CSV files.
 
     Parameters
     ----------
     data_dir : Path
+        Root BharatFlux directory.
 
     Returns
     -------
     list[Path]
+        Sorted list of CSV files.
     """
 
     return sorted(data_dir.rglob("*.csv"))
@@ -84,11 +86,12 @@ def parse_filename(filepath: Path) -> DatasetInfo:
     """
     Parse BharatFlux filename.
 
-    Examples
-    --------
+    Supported formats
+    -----------------
     BFT_2016_LE_ET_dmean.csv
+    JIT_2016_ET_LE_dmean.csv
     BKC_2014_ET_dmean.csv
-    KNP_2016_LE_dmean.csv
+    BKC_2014_LE_dmean.csv
     """
 
     name = filepath.stem
@@ -201,7 +204,7 @@ def build_inventory(
     datasets: dict[str, Dataset],
 ) -> pd.DataFrame:
     """
-    Build a summary table of all datasets.
+    Build a summary table of all BharatFlux datasets.
 
     Returns
     -------
@@ -212,15 +215,43 @@ def build_inventory(
 
     for name, dataset in datasets.items():
 
+        df = dataset.data
+
+        # First column is either "Day" or "DoY"
+        day_column = df.columns[0]
+
+        start_day = df[day_column].min()
+        end_day = df[day_column].max()
+
+        expected_days = (
+            366
+            if (
+                dataset.info.year % 400 == 0
+                or (
+                    dataset.info.year % 4 == 0
+                    and dataset.info.year % 100 != 0
+                )
+            )
+            else 365
+        )
+
+        coverage = round(
+            100 * len(df) / expected_days,
+            1,
+        )
+
         rows.append(
             {
                 "Dataset": name,
                 "Site": dataset.info.site,
                 "Year": dataset.info.year,
                 "File Type": dataset.info.file_type,
-                "Rows": len(dataset.data),
-                "Columns": len(dataset.data.columns),
-                "Column Names": ", ".join(dataset.data.columns),
+                "Rows": len(df),
+                "Columns": len(df.columns),
+                "Start DoY": start_day,
+                "End DoY": end_day,
+                "Coverage (%)": coverage,
+                "Column Names": ", ".join(df.columns),
                 "Path": str(dataset.info.path),
             }
         )
@@ -228,7 +259,7 @@ def build_inventory(
     inventory = pd.DataFrame(rows)
 
     inventory = inventory.sort_values(
-        ["Site", "Year", "File Type"]
+        by=["Site", "Year", "File Type"]
     ).reset_index(drop=True)
 
     return inventory
