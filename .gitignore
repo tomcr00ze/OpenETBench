@@ -6,6 +6,14 @@ __pycache__/
 # My Virtual Environment
 .openETenv/
 
+# Large Data (don't upload)
+# data/raw/
+# data/intermediate/
+
+# Generated Results
+# results/
+# figures/
+
 # C extensions
 *.so
 
