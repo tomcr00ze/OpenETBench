@@ -1,174 +1,234 @@
 """
-OpenETBench - BharatFlux Data Loader
+OpenETBench
+------------
 
-This module is responsible for discovering and loading BharatFlux CSV files.
-No cleaning or preprocessing is performed here.
+Loader for BharatFlux daily ET observations.
+
+Responsibilities
+----------------
+- Discover all BharatFlux CSV files
+- Parse metadata from filenames
+- Load CSVs into pandas DataFrames
+- Store metadata using dataclasses
+- Build an inventory table for downstream processing
 
 Author: Adarsh Jha
 """
 
-from __future__ import annotations
-
-import logging
-import re
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List
+import re
 
 import pandas as pd
 
-logger = logging.getLogger(__name__)
 
+# ============================================================
+# Dataclasses
+# ============================================================
 
-# ------------------------------------------------------------
-# Filename Patterns
-# ------------------------------------------------------------
-
-COMBINED_PATTERN = re.compile(
-    r"^(?P<site>[A-Z]{3})_(?P<year>\d{4})_(LE_ET|ET_LE)_dmean\.csv$",
-    re.IGNORECASE,
-)
-
-LE_PATTERN = re.compile(
-    r"^(?P<site>[A-Z]{3})_(?P<year>\d{4})_LE_dmean\.csv$",
-    re.IGNORECASE,
-)
-
-ET_PATTERN = re.compile(
-    r"^(?P<site>[A-Z]{3})_(?P<year>\d{4})_ET_dmean\.csv$",
-    re.IGNORECASE,
-)
-
-
-# ------------------------------------------------------------
-# Public Functions
-# ------------------------------------------------------------
-
-def list_csv_files(root_dir: str | Path) -> List[Path]:
+@dataclass(slots=True)
+class DatasetInfo:
     """
-    Recursively find all CSV files.
+    Metadata describing one BharatFlux dataset.
+    """
+
+    site: str
+    year: int
+    file_type: str
+    path: Path
+
+
+@dataclass(slots=True)
+class Dataset:
+    """
+    One loaded BharatFlux dataset.
+
+    Attributes
+    ----------
+    info : DatasetInfo
+        Metadata parsed from filename.
+
+    data : pandas.DataFrame
+        Loaded CSV.
+    """
+
+    info: DatasetInfo
+    data: pd.DataFrame
+
+
+# ============================================================
+# File Discovery
+# ============================================================
+
+def list_csv_files(data_dir: Path) -> list[Path]:
+    """
+    Recursively list all CSV files.
 
     Parameters
     ----------
-    root_dir : str or Path
+    data_dir : Path
 
     Returns
     -------
-    List[Path]
+    list[Path]
     """
 
-    root_dir = Path(root_dir)
-
-    if not root_dir.exists():
-        raise FileNotFoundError(f"{root_dir} does not exist.")
-
-    files = sorted(root_dir.rglob("*.csv"))
-
-    logger.info("Found %d CSV files.", len(files))
-
-    return files
+    return sorted(data_dir.rglob("*.csv"))
 
 
-def parse_filename(path: str | Path) -> Dict:
+# ============================================================
+# Filename Parsing
+# ============================================================
+
+def parse_filename(filepath: Path) -> DatasetInfo:
     """
     Parse BharatFlux filename.
 
-    Returns
-    -------
-    dict
-
-    Example
-    -------
+    Examples
+    --------
     BFT_2016_LE_ET_dmean.csv
-
-    ->
-    {
-        "site":"BFT",
-        "year":2016,
-        "file_type":"combined"
-    }
+    BKC_2014_ET_dmean.csv
+    KNP_2016_LE_dmean.csv
     """
 
-    filename = Path(path).name
+    name = filepath.stem
 
-    if match := COMBINED_PATTERN.match(filename):
-        return {
-            "site": match.group("site"),
-            "year": int(match.group("year")),
-            "file_type": "combined",
-        }
+    # Combined LE + ET
+    pattern_combined = (
+        r"(?P<site>[A-Z]+)_(?P<year>\d{4})_(LE_ET|ET_LE)_dmean"
+    )
 
-    if match := LE_PATTERN.match(filename):
-        return {
-            "site": match.group("site"),
-            "year": int(match.group("year")),
-            "file_type": "LE_only",
-        }
+    # LE only
+    pattern_le = (
+        r"(?P<site>[A-Z]+)_(?P<year>\d{4})_LE_dmean"
+    )
 
-    if match := ET_PATTERN.match(filename):
-        return {
-            "site": match.group("site"),
-            "year": int(match.group("year")),
-            "file_type": "ET_only",
-        }
+    # ET only
+    pattern_et = (
+        r"(?P<site>[A-Z]+)_(?P<year>\d{4})_ET_dmean"
+    )
 
-    raise ValueError(f"Unrecognized filename format: {filename}")
+    if match := re.fullmatch(pattern_combined, name):
+        return DatasetInfo(
+            site=match.group("site"),
+            year=int(match.group("year")),
+            file_type="combined",
+            path=filepath,
+        )
+
+    if match := re.fullmatch(pattern_le, name):
+        return DatasetInfo(
+            site=match.group("site"),
+            year=int(match.group("year")),
+            file_type="LE_only",
+            path=filepath,
+        )
+
+    if match := re.fullmatch(pattern_et, name):
+        return DatasetInfo(
+            site=match.group("site"),
+            year=int(match.group("year")),
+            file_type="ET_only",
+            path=filepath,
+        )
+
+    raise ValueError(f"Unrecognized filename: {filepath.name}")
 
 
-def load_csv(path: str | Path) -> pd.DataFrame:
+# ============================================================
+# CSV Loader
+# ============================================================
+
+def load_csv(filepath: Path) -> pd.DataFrame:
     """
-    Load a BharatFlux CSV file.
+    Load one BharatFlux CSV.
 
     Parameters
     ----------
-    path : str or Path
+    filepath : Path
 
     Returns
     -------
     pandas.DataFrame
     """
 
-    path = Path(path)
-
-    df = pd.read_csv(path)
-
-    logger.info("Loaded %s (%d rows)", path.name, len(df))
-
-    return df
+    return pd.read_csv(filepath)
 
 
-def load_all(root_dir: str | Path) -> Dict[str, Dict]:
+# ============================================================
+# Load Everything
+# ============================================================
+
+def load_all(data_dir: Path) -> dict[str, Dataset]:
     """
     Load every BharatFlux CSV.
 
+    Parameters
+    ----------
+    data_dir : Path
+
     Returns
     -------
-    dict
+    dict[str, Dataset]
 
-    {
-        "BFT_2016": {
-            ...
-        }
-    }
+    Example
+    -------
+    datasets["BFT_2016_LE_ET_dmean"].info.site
+    datasets["BFT_2016_LE_ET_dmean"].data
     """
 
-    datasets = {}
+    datasets: dict[str, Dataset] = {}
 
-    files = list_csv_files(root_dir)
+    for filepath in list_csv_files(data_dir):
 
-    for file in files:
+        info = parse_filename(filepath)
 
-        metadata = parse_filename(file)
+        df = load_csv(filepath)
 
-        key = file.stem
-
-        datasets[key] = {
-            "site": metadata["site"],
-            "year": metadata["year"],
-            "file_type": metadata["file_type"],
-            "path": file,
-            "data": load_csv(file),
-        }
-
-    logger.info("Loaded %d datasets.", len(datasets))
+        datasets[filepath.stem] = Dataset(
+            info=info,
+            data=df,
+        )
 
     return datasets
+
+
+# ============================================================
+# Inventory Builder
+# ============================================================
+
+def build_inventory(
+    datasets: dict[str, Dataset],
+) -> pd.DataFrame:
+    """
+    Build a summary table of all datasets.
+
+    Returns
+    -------
+    pandas.DataFrame
+    """
+
+    rows = []
+
+    for name, dataset in datasets.items():
+
+        rows.append(
+            {
+                "Dataset": name,
+                "Site": dataset.info.site,
+                "Year": dataset.info.year,
+                "File Type": dataset.info.file_type,
+                "Rows": len(dataset.data),
+                "Columns": len(dataset.data.columns),
+                "Column Names": ", ".join(dataset.data.columns),
+                "Path": str(dataset.info.path),
+            }
+        )
+
+    inventory = pd.DataFrame(rows)
+
+    inventory = inventory.sort_values(
+        ["Site", "Year", "File Type"]
+    ).reset_index(drop=True)
+
+    return inventory
