@@ -39,7 +39,7 @@ class DatasetInfo:
 
 
 @dataclass(slots=True)
-class Dataset:
+class BharatFluxDataset:
     """
     One loaded BharatFlux dataset.
 
@@ -162,7 +162,7 @@ def load_csv(filepath: Path) -> pd.DataFrame:
 # Load Everything
 # ============================================================
 
-def load_all(data_dir: Path) -> dict[str, Dataset]:
+def load_all(data_dir: Path) -> dict[str, BharatFluxDataset]:
     """
     Load every BharatFlux CSV.
 
@@ -172,7 +172,7 @@ def load_all(data_dir: Path) -> dict[str, Dataset]:
 
     Returns
     -------
-    dict[str, Dataset]
+    dict[str, BharatFluxDataset]
 
     Example
     -------
@@ -180,7 +180,7 @@ def load_all(data_dir: Path) -> dict[str, Dataset]:
     datasets["BFT_2016_LE_ET_dmean"].data
     """
 
-    datasets: dict[str, Dataset] = {}
+    datasets: dict[str, BharatFluxDataset] = {}
 
     for filepath in list_csv_files(data_dir):
 
@@ -188,7 +188,7 @@ def load_all(data_dir: Path) -> dict[str, Dataset]:
 
         df = load_csv(filepath)
 
-        datasets[filepath.stem] = Dataset(
+        datasets[filepath.stem] = BharatFluxDataset(
             info=info,
             data=df,
         )
@@ -201,7 +201,7 @@ def load_all(data_dir: Path) -> dict[str, Dataset]:
 # ============================================================
 
 def build_inventory(
-    datasets: dict[str, Dataset],
+    datasets: dict[str, BharatFluxDataset],
 ) -> pd.DataFrame:
     """
     Build a summary table of all BharatFlux datasets.

@@ -18,7 +18,7 @@ from dataclasses import replace
 import pandas as pd
 
 # pyrefly: ignore [missing-import]
-from src.preprocessing.loader import BharatFluxDataset
+from preprocessing.loader import BharatFluxDataset
 
 
 # ============================================================
@@ -232,3 +232,85 @@ def merge_split_files(
         processed.add(le_key)
 
     return merged_datasets
+
+# ============================================================
+# Missing Value Standardization
+# ============================================================
+
+def standardize_missing_values(
+    df: pd.DataFrame,
+) -> pd.DataFrame:
+    """
+    Standardize missing values in a BharatFlux dataframe.
+
+    BharatFlux datasets may represent missing values in several
+    different ways (e.g., 'NA', 'N/A', '', 'null'). This function
+    converts all such representations to pandas' missing value
+    indicator (NaN).
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        Input dataframe.
+
+    Returns
+    -------
+    pandas.DataFrame
+        DataFrame with standardized missing values.
+    """
+
+    cleaned_df = df.copy()
+
+    missing_values = [
+        "NA",
+        "N/A",
+        "NaN",
+        "nan",
+        "NULL",
+        "null",
+        "",
+        " ",
+    ]
+
+    cleaned_df.replace(
+        missing_values,
+        pd.NA,
+        inplace=True,
+    )
+
+    return cleaned_df
+
+# ============================================================
+# Numeric Type Conversion
+# ============================================================
+
+def convert_numeric_types(
+    df: pd.DataFrame,
+) -> pd.DataFrame:
+    """
+    Convert BharatFlux measurement columns to numeric data types.
+
+    Any values that cannot be converted are automatically
+    converted to NaN.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        Input dataframe.
+
+    Returns
+    -------
+    pandas.DataFrame
+        DataFrame with numeric columns.
+    """
+
+    cleaned_df = df.copy()
+
+    for column in cleaned_df.columns:
+
+        cleaned_df[column] = pd.to_numeric(
+            cleaned_df[column],
+            errors="coerce",
+        )
+
+    return cleaned_df
