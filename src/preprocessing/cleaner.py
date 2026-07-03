@@ -513,3 +513,112 @@ def validate_dataset(
         sorted=sorted_flag,
         valid=valid,
     )
+
+# ============================================================
+# Complete Cleaning Pipeline
+# ============================================================
+
+def clean_dataset(
+    dataset: BharatFluxDataset,
+) -> tuple[BharatFluxDataset, ValidationReport]:
+    """
+    Run the preprocessing pipeline for a single BharatFlux dataset.
+
+    Parameters
+    ----------
+    dataset : BharatFluxDataset
+
+    Returns
+    -------
+    tuple
+        (cleaned_dataset, validation_report)
+    """
+
+    df = dataset.data
+
+    # Standardize missing values
+    df = standardize_missing_values(df)
+
+    # Convert numeric columns
+    df = convert_numeric_types(df)
+
+    # Sort chronologically
+    df = sort_by_doy(df)
+
+    cleaned_dataset = BharatFluxDataset(
+        info=dataset.info,
+        data=df,
+    )
+
+    report = validate_dataset(cleaned_dataset)
+
+    return cleaned_dataset, report
+
+# ============================================================
+# Clean All BharatFlux Datasets
+# ============================================================
+
+def clean_all(
+    datasets: dict[str, BharatFluxDataset],
+) -> tuple[
+    dict[str, BharatFluxDataset],
+    pd.DataFrame,
+]:
+    """
+    Clean every BharatFlux dataset and generate a validation
+    summary.
+
+    Parameters
+    ----------
+    datasets : dict[str, BharatFluxDataset]
+
+    Returns
+    -------
+    tuple
+        (
+            cleaned_datasets,
+            validation_summary,
+        )
+    """
+
+    # --------------------------------------------------------
+    # Step 1
+    # Standardize column names for every raw dataset
+    # --------------------------------------------------------
+
+    standardized = {}
+
+    for name, dataset in datasets.items():
+
+        standardized[name] = replace(
+            dataset,
+            data=standardize_column_names(dataset.data),
+        )
+
+    # --------------------------------------------------------
+    # Step 2
+    # Merge split ET/LE datasets
+    # --------------------------------------------------------
+
+    merged = merge_split_files(standardized)
+
+    # --------------------------------------------------------
+    # Step 3
+    # Clean every merged dataset
+    # --------------------------------------------------------
+
+    cleaned_datasets = {}
+
+    reports = []
+
+    for name, dataset in merged.items():
+
+        cleaned_dataset, report = clean_dataset(dataset)
+
+        cleaned_datasets[name] = cleaned_dataset
+
+        reports.append(vars(report))
+
+    validation_summary = pd.DataFrame(reports)
+
+    return cleaned_datasets, validation_summary
