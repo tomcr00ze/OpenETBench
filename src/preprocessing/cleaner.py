@@ -314,3 +314,37 @@ def convert_numeric_types(
         )
 
     return cleaned_df
+
+# ============================================================
+# Sort by Day of Year
+# ============================================================
+
+def sort_by_doy(
+    df: pd.DataFrame,
+) -> pd.DataFrame:
+    """
+    Sort a BharatFlux dataframe by Day of Year.
+
+    This ensures all datasets are stored in chronological
+    order regardless of their original ordering.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        Input dataframe.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Chronologically sorted dataframe.
+    """
+
+    cleaned_df = df.copy()
+
+    cleaned_df = (
+        cleaned_df
+        .sort_values("DoY")
+        .reset_index(drop=True)
+    )
+
+    return cleaned_df
