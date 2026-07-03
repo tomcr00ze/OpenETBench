@@ -14,12 +14,40 @@ Responsibilities
 
 Author: Adarsh Jha
 """
+from dataclasses import dataclass
 from dataclasses import replace
 import pandas as pd
 
 # pyrefly: ignore [missing-import]
 from preprocessing.loader import BharatFluxDataset
 
+# ============================================================
+# Validation Report
+# ============================================================
+
+@dataclass
+class ValidationReport:
+    """
+    Summary of dataset quality checks.
+    """
+
+    site: str
+    year: int
+
+    rows: int
+
+    start_doy: int | None
+    end_doy: int | None
+
+    duplicate_doy: int
+
+    missing_le: int
+    missing_et: int
+
+    doy_coverage_percent: float
+
+    sorted: bool
+    valid: bool
 
 # ============================================================
 # Column Name Mapping
@@ -348,3 +376,140 @@ def sort_by_doy(
     )
 
     return cleaned_df
+
+# ============================================================
+# Dataset Validation
+# ============================================================
+
+def validate_dataset(
+    dataset: BharatFluxDataset,
+) -> ValidationReport:
+    """
+    Validate a cleaned BharatFlux dataset.
+
+    The function performs a series of quality-control checks and
+    returns a ValidationReport describing the dataset.
+
+    Parameters
+    ----------
+    dataset : BharatFluxDataset
+        Cleaned dataset.
+
+    Returns
+    -------
+    ValidationReport
+        Dataset quality report.
+    """
+
+    df = dataset.data
+
+    # --------------------------------------------------------
+    # Basic information
+    # --------------------------------------------------------
+
+    rows = len(df)
+
+    start_doy = (
+        int(df["DoY"].min())
+        if rows > 0
+        else None
+    )
+
+    end_doy = (
+        int(df["DoY"].max())
+        if rows > 0
+        else None
+    )
+
+    # --------------------------------------------------------
+    # Duplicate DoY
+    # --------------------------------------------------------
+
+    duplicate_doy = int(
+        df["DoY"].duplicated().sum()
+    )
+
+    # --------------------------------------------------------
+    # Missing observations
+    #
+    # Missing LE/ET values are expected in BharatFlux and are
+    # reported for information only.
+    # --------------------------------------------------------
+
+    missing_le = int(
+        df["LE"].isna().sum()
+    )
+
+    missing_et = int(
+        df["ET"].isna().sum()
+    )
+
+    # --------------------------------------------------------
+    # Coverage
+    #
+    # Coverage is based on available DoY records, not on LE/ET
+    # completeness.
+    # --------------------------------------------------------
+
+    expected_days = (
+        end_doy - start_doy + 1
+        if rows > 0
+        else 0
+    )
+
+    if expected_days > 0:
+
+        doy_coverage_percent = round(
+            rows / expected_days * 100,
+            1,
+        )
+
+    else:
+
+        doy_coverage_percent = 0.0
+
+    # --------------------------------------------------------
+    # Check chronological order
+    # --------------------------------------------------------
+
+    sorted_flag = bool(
+        df["DoY"].is_monotonic_increasing
+    )
+
+    # --------------------------------------------------------
+    # Overall dataset validity
+    #
+    # NOTE:
+    # Missing LE/ET values DO NOT invalidate a dataset.
+    # They are natural gaps in flux tower observations.
+    # --------------------------------------------------------
+
+    valid = all(
+        [
+            rows > 0,
+            duplicate_doy == 0,
+            sorted_flag,
+            start_doy is not None,
+            end_doy is not None,
+            start_doy >= 1,
+            end_doy <= 366,
+        ]
+    )
+
+    # --------------------------------------------------------
+    # Build validation report
+    # --------------------------------------------------------
+
+    return ValidationReport(
+        site=dataset.info.site,
+        year=dataset.info.year,
+        rows=rows,
+        start_doy=start_doy,
+        end_doy=end_doy,
+        duplicate_doy=duplicate_doy,
+        missing_le=missing_le,
+        missing_et=missing_et,
+        doy_coverage_percent=doy_coverage_percent,
+        sorted=sorted_flag,
+        valid=valid,
+    )
