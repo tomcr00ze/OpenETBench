@@ -9,6 +9,7 @@ __pycache__/
 # Large Data (don't upload)
 data/raw/
 data/intermediate/
+data/processed/
 
 # Generated Results
 # results/
