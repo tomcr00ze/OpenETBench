@@ -11,115 +11,172 @@ Google Earth Engine.
 Author: Adarsh Jha
 """
 
-from dataclasses import dataclass
-
-
-# ============================================================
-# BharatFlux Site
-# ============================================================
-
-@dataclass(frozen=True)
-class FluxSite:
-    """
-    Metadata for one BharatFlux flux tower site.
-    """
-
-    id: str
-    name: str
-    latitude: float
-    longitude: float
-
-
 # ============================================================
 # BharatFlux Site Registry
 # ============================================================
 
-BHARATFLUX_SITES = {
+from dataclasses import dataclass
 
-    "BFT": FluxSite(
+
+@dataclass(frozen=True)
+class Site:
+    """
+    BharatFlux flux tower metadata.
+
+    Parameters
+    ----------
+    id : str
+        Site abbreviation.
+
+    latitude : float
+        Latitude (decimal degrees).
+
+    longitude : float
+        Longitude (decimal degrees).
+
+    elevation : float | None
+        Elevation above mean sea level (m).
+
+    buffer_m : int
+        Radius (m) used for satellite extraction.
+    """
+
+    id: str
+    latitude: float
+    longitude: float
+    elevation: float | None = None
+    buffer_m: int = 700
+
+
+# ============================================================
+# BharatFlux Sites
+#
+# Coordinates taken from:
+#
+# Deb Burman et al. (2025)
+# Agricultural and Forest Meteorology
+# Table 1
+# ============================================================
+
+SITES: dict[str, Site] = {
+
+    "KNP": Site(
+        id="KNP",
+        latitude=26.58,
+        longitude=93.10,
+        elevation=80,
+    ),
+
+    "BFT": Site(
         id="BFT",
-        name="BFT",
-        latitude=30.2756,
-        longitude=79.7311,
+        latitude=21.86,
+        longitude=77.42,
+        elevation=507,
     ),
 
-    "BIT": FluxSite(
-        id="BIT",
-        name="BIT",
-        latitude=13.5503,
-        longitude=77.4250,
-    ),
-
-    "BKC": FluxSite(
-        id="BKC",
-        name="BKC",
-        latitude=18.1186,
-        longitude=74.4890,
-    ),
-
-    "DIT": FluxSite(
-        id="DIT",
-        name="DIT",
-        latitude=30.3760,
-        longitude=78.0783,
-    ),
-
-    "JIT": FluxSite(
-        id="JIT",
-        name="JIT",
-        latitude=26.7490,
-        longitude=94.2037,
-    ),
-
-    "KKM": FluxSite(
+    "KKM": Site(
         id="KKM",
-        name="KKM",
-        latitude=10.7870,
-        longitude=76.4490,
+        latitude=29.38,
+        longitude=79.37,
+        elevation=1217,
     ),
 
-    "RAR": FluxSite(
-        id="RAR",
-        name="RAR",
-        latitude=23.4270,
-        longitude=87.2870,
+    "DIT": Site(
+        id="DIT",
+        latitude=15.50,
+        longitude=74.99,
+        elevation=692,
     ),
 
-    "RJP": FluxSite(
-        id="RJP",
-        name="RJP",
-        latitude=26.0008,
-        longitude=73.3499,
+    "BKC": Site(
+        id="BKC",
+        latitude=25.06,
+        longitude=82.59,
+        elevation=169,
     ),
 
-    "SKP": FluxSite(
-        id="SKP",
-        name="SKP",
-        latitude=22.9570,
-        longitude=88.5230,
+    "BIT": Site(
+        id="BIT",
+        latitude=11.76,
+        longitude=76.59,
+        elevation=873,
+    ),
+
+    "NIT": Site(
+        id="NIT",
+        latitude=22.80,
+        longitude=72.57,
+        elevation=55,
+    ),
+
+    "SIT": Site(
+        id="SIT",
+        latitude=26.00,
+        longitude=85.67,
+        elevation=39,
+    ),
+
+    "JIT": Site(
+        id="JIT",
+        latitude=26.99,
+        longitude=71.34,
+        elevation=120,
+    ),
+
+    "UIT": Site(
+        id="UIT",
+        latitude=26.51,
+        longitude=80.22,
+        elevation=129,
+    ),
+
+    "PVM": Site(
+        id="PVM",
+        latitude=11.43,
+        longitude=79.79,
+        elevation=None,
+    ),
+
+    "SFT": Site(
+        id="SFT",
+        latitude=21.82,
+        longitude=88.62,
+        elevation=None,
     ),
 }
+
 
 # ============================================================
 # Helper Functions
 # ============================================================
 
-def get_site(site_id: str) -> FluxSite:
+def get_site(site_id: str) -> Site:
     """
-    Return metadata for a BharatFlux site.
+    Return a BharatFlux site.
 
     Parameters
     ----------
     site_id : str
+        Site abbreviation.
 
     Returns
     -------
-    FluxSite
+    Site
     """
 
-    if site_id not in BHARATFLUX_SITES:
+    try:
+        return SITES[site_id.upper()]
+
+    except KeyError as exc:
+
         raise KeyError(
             f"Unknown BharatFlux site: {site_id}"
-        )
+        ) from exc
 
-    return BHARATFLUX_SITES[site_id]
+
+def list_sites() -> list[str]:
+    """
+    Return all available BharatFlux site IDs.
+    """
+
+    return sorted(SITES.keys())
