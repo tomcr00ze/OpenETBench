@@ -29,7 +29,10 @@ class ETProduct:
     name : str
         Product name.
 
-    collection : str
+    product_type : str
+        ET product category.
+
+    gee_collection : str
         Earth Engine ImageCollection ID.
 
     band : str
@@ -41,18 +44,23 @@ class ETProduct:
     temporal_resolution : str
         Native temporal resolution.
 
+    scale_factor : float
+        Multiplicative scale factor applied to the raw band values.
+
     units : str
-        Units of the ET band.
+        Native units of the ET band.
 
     provider : str
         Dataset provider.
     """
 
     name: str
-    collection: str
+    product_type: str
+    gee_collection: str
     band: str
     scale: int
     temporal_resolution: str
+    scale_factor: float
     units: str
     provider: str
 
@@ -68,10 +76,12 @@ ET_PRODUCTS: dict[str, ETProduct] = {
     # --------------------------------------------------------
     "MOD16A2GF": ETProduct(
         name="MOD16A2GF",
-        collection="MODIS/061/MOD16A2GF",
+        product_type="Remote Sensing",
+        gee_collection="MODIS/061/MOD16A2GF",
         band="ET",
         scale=500,
         temporal_resolution="8-day",
+        scale_factor=0.1,
         units="kg m-2 / 8-day",
         provider="NASA",
     ),
@@ -79,12 +89,14 @@ ET_PRODUCTS: dict[str, ETProduct] = {
     # --------------------------------------------------------
     # SSEBop
     # --------------------------------------------------------
-    "SSEBop": ETProduct(
+    "SSEBOP": ETProduct(
         name="SSEBop",
-        collection="OpenET/SSEBOP/CONUS/GRIDMET/MONTHLY/v2_0",
+        product_type="Remote Sensing",
+        gee_collection="OpenET/SSEBOP/CONUS/GRIDMET/MONTHLY/v2_0",
         band="et",
         scale=1000,
         temporal_resolution="monthly",
+        scale_factor=1.0,
         units="mm",
         provider="OpenET",
     ),
@@ -92,17 +104,20 @@ ET_PRODUCTS: dict[str, ETProduct] = {
     # --------------------------------------------------------
     # ERA5-Land
     # --------------------------------------------------------
-    "ERA5-Land": ETProduct(
+    "ERA5-LAND": ETProduct(
         name="ERA5-Land",
-        collection="ECMWF/ERA5_LAND/DAILY_AGGR",
+        product_type="Reanalysis",
+        gee_collection="ECMWF/ERA5_LAND/DAILY_AGGR",
         band="total_evaporation_sum",
         scale=11132,
         temporal_resolution="daily",
+        scale_factor=1.0,
         units="m",
         provider="ECMWF",
     ),
 
 }
+
 
 # ============================================================
 # Product Lookup
@@ -124,9 +139,27 @@ def get_product(
     ETProduct
     """
 
-    if name not in ET_PRODUCTS:
+    try:
+        return ET_PRODUCTS[name.upper()]
+
+    except KeyError as exc:
+
         raise ValueError(
             f"Unknown ET product: {name}"
-        )
+        ) from exc
 
-    return ET_PRODUCTS[name]
+
+# ============================================================
+# Helper Functions
+# ============================================================
+
+def list_products() -> list[str]:
+    """
+    Return the names of all registered ET products.
+
+    Returns
+    -------
+    list[str]
+    """
+
+    return sorted(ET_PRODUCTS.keys())
