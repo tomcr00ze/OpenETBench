@@ -185,6 +185,7 @@ def _to_dataframe(
     df["DoY"] = (
         df["Date"]
         .dt.dayofyear
+        .astype("int64")
     )
 
     return df[
