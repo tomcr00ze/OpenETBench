@@ -60,7 +60,7 @@ def plot_scatter(
     Returns
     -------
     Path
-        Saved figure path.
+        Path to the saved figure.
     """
 
     # --------------------------------------------------------
@@ -68,33 +68,38 @@ def plot_scatter(
     # --------------------------------------------------------
 
     figure_dir = output_dir / "scatter"
+
     figure_dir.mkdir(
         parents=True,
         exist_ok=True,
     )
 
     figure_path = (
-        figure_dir /
-        f"{product_name}_{site}_{year}.png"
+        figure_dir
+        / f"{product_name}_{site}_{year}.png"
     )
 
     # --------------------------------------------------------
-    # Prepare figure
+    # Create figure
     # --------------------------------------------------------
 
     fig, ax = plt.subplots(
-        figsize=(6, 6)
+        figsize=(6, 6),
     )
+
+    # --------------------------------------------------------
+    # Scatter points
+    # --------------------------------------------------------
 
     ax.scatter(
         merged["Observed_ET"],
         merged["Satellite_ET"],
-        s=35,
-        alpha=0.8,
+        s=40,
+        alpha=0.6,
     )
 
     # --------------------------------------------------------
-    # 1:1 Reference Line
+    # 1:1 reference line
     # --------------------------------------------------------
 
     minimum = min(
@@ -110,32 +115,60 @@ def plot_scatter(
     ax.plot(
         [minimum, maximum],
         [minimum, maximum],
-        "--",
+        linestyle="--",
+        color="gray",
         linewidth=1.5,
+        label="1:1 Line",
     )
 
     # --------------------------------------------------------
-    # Labels
+    # Axis labels
     # --------------------------------------------------------
 
     ax.set_xlabel(
-        "Observed ET (mm/day)"
+        "Observed ET (mm/day)",
+        fontsize=12,
     )
 
     ax.set_ylabel(
-        "Satellite ET (mm/day)"
+        "Satellite ET (mm/day)",
+        fontsize=12,
     )
 
     ax.set_title(
         f"{product_name} vs BharatFlux\n"
-        f"{site} ({year})"
+        f"{site} ({year})",
+        fontsize=15,
+        fontweight="bold",
+    )
+
+    # --------------------------------------------------------
+    # Equal aspect ratio
+    # --------------------------------------------------------
+
+    ax.set_aspect(
+        "equal",
+        adjustable="box",
+    )
+
+    # --------------------------------------------------------
+    # Grid
+    # --------------------------------------------------------
+
+    ax.grid(
+        True,
+        linestyle=":",
+        alpha=0.6,
     )
 
     # --------------------------------------------------------
     # Metrics textbox
     # --------------------------------------------------------
 
-    text = (
+    n = len(merged)
+
+    textbox = (
+        f"n    : {n}\n"
         f"RMSE : {metrics.rmse:.2f}\n"
         f"MAE  : {metrics.mae:.2f}\n"
         f"Bias : {metrics.bias:.2f}\n"
@@ -144,25 +177,34 @@ def plot_scatter(
     )
 
     ax.text(
-        0.05,
         0.95,
-        text,
+        0.95,
+        textbox,
         transform=ax.transAxes,
-        verticalalignment="top",
+        fontsize=11,
+        horizontalalignment="right",
+        verticalalignment="bottom",
         bbox=dict(
             boxstyle="round",
             facecolor="white",
-            alpha=0.9,
+            edgecolor="black",
+            alpha=0.90,
         ),
     )
 
-    ax.grid(True)
+    # --------------------------------------------------------
+    # Layout
+    # --------------------------------------------------------
 
     fig.tight_layout()
 
+    # --------------------------------------------------------
+    # Save figure
+    # --------------------------------------------------------
+
     fig.savefig(
         figure_path,
-        dpi=300,
+        dpi=600,
         bbox_inches="tight",
     )
 
