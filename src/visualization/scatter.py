@@ -168,17 +168,17 @@ def plot_scatter(
     n = len(merged)
 
     textbox = (
-        f"n    : {n}\n"
-        f"RMSE : {metrics.rmse:.2f}\n"
-        f"MAE  : {metrics.mae:.2f}\n"
-        f"Bias : {metrics.bias:.2f}\n"
-        f"r    : {metrics.correlation:.3f}\n"
-        f"R²   : {metrics.r2:.3f}"
-    )
+    f"n    : {n}\n"
+    f"RMSE : {metrics.rmse:.2f}\n"
+    f"MAE  : {metrics.mae:.2f}\n"
+    f"Bias : {metrics.bias:.2f}\n"
+    f"r    : {metrics.correlation:.3f}\n"
+    f"R²   : {metrics.r2:.3f}"
+)
 
     ax.text(
         0.95,
-        0.95,
+        0.05,                    # Bottom of the axes
         textbox,
         transform=ax.transAxes,
         fontsize=11,
@@ -190,7 +190,7 @@ def plot_scatter(
             edgecolor="black",
             alpha=0.90,
         ),
-    )
+)
 
     # --------------------------------------------------------
     # Layout
