@@ -20,3 +20,6 @@
 # Windows batch files
 *.bat text eol=crlf
 *.ps1 text eol=crlf
+
+# Hide ipynb from language stats
+*.ipynb linguist-vendored
