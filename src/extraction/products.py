@@ -105,7 +105,7 @@ ET_PRODUCTS: dict[str, ETProduct] = {
     # --------------------------------------------------------
     # SSEBop (OpenET)
     # --------------------------------------------------------
-    "SSEBop": ETProduct(
+    "SSEBOP": ETProduct(
         name="SSEBop",
         collection="OpenET/SSEBOP/CONUS/GRIDMET/MONTHLY/v2_0",
         band="et",
@@ -124,7 +124,7 @@ ET_PRODUCTS: dict[str, ETProduct] = {
     # --------------------------------------------------------
     # ERA5-Land
     # --------------------------------------------------------
-    "ERA5-Land": ETProduct(
+    "ERA5-LAND": ETProduct(
         name="ERA5-Land",
         collection="ECMWF/ERA5_LAND/DAILY_AGGR",
         band="total_evaporation_sum",

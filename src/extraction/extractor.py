@@ -66,7 +66,7 @@ def _load_collection(
 
     return (
         ee.ImageCollection(
-            product.gee_collection
+            product.collection
         )
         .filterDate(
             start_date,
