@@ -96,7 +96,7 @@ def _reduce_image(
     ).reduceRegion(
         reducer=ee.Reducer.mean(),
         geometry=region,
-        scale=product.scale,
+        scale=product.spatial_resolution,
         maxPixels=1e9,
     )
 
@@ -168,8 +168,7 @@ def _to_dataframe(
             {
                 "Date": properties["date"],
                 "ET": (
-                    properties["ET"]
-                    * product.scale_factor
+                    float(properties["ET"]) * product.scale_factor
                     if properties["ET"] is not None
                     else None
                 ),
@@ -178,8 +177,18 @@ def _to_dataframe(
 
     df = pd.DataFrame(rows)
 
+    df = df.dropna(
+        subset=["ET"]
+    )
+
     df["Date"] = pd.to_datetime(
         df["Date"]
+    )
+
+    df = df.sort_values(
+        "Date"
+    ).reset_index(
+        drop=True
     )
 
     df["DoY"] = (

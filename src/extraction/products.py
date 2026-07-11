@@ -38,7 +38,7 @@ class ETProduct:
     band : str
         Band containing evapotranspiration.
 
-    scale : int
+    spatial_resolution : int
         Native spatial resolution (meters).
 
     temporal_resolution : str
