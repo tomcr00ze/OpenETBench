@@ -52,17 +52,28 @@ class ETProduct:
 
     provider : str
         Dataset provider.
+
+    coverage : str
+        Geographic coverage of the dataset. Examples: CONUS, Global.
     """
 
+    # Basic
     name: str
-    product_type: str
-    gee_collection: str
+    collection: str
     band: str
-    scale: int
-    temporal_resolution: str
+
+    # Scaling
     scale_factor: float
+
+    # Spatial / Temporal
+    spatial_resolution: int
+    temporal_resolution: str
+
+    # Metadata
     units: str
     provider: str
+    coverage: str
+    product_type: str
 
 
 # ============================================================
@@ -76,48 +87,63 @@ ET_PRODUCTS: dict[str, ETProduct] = {
     # --------------------------------------------------------
     "MOD16A2GF": ETProduct(
         name="MOD16A2GF",
-        product_type="Remote Sensing",
-        gee_collection="MODIS/061/MOD16A2GF",
+        collection="MODIS/061/MOD16A2GF",
         band="ET",
-        scale=500,
-        temporal_resolution="8-day",
+
+        # MODIS stores ET ×10
         scale_factor=0.1,
-        units="kg m-2 / 8-day",
+
+        spatial_resolution=500,
+        temporal_resolution="8-day",
+
+        units="mm/8-day",
         provider="NASA",
+        coverage="Global",
+        product_type="Remote Sensing",
     ),
 
     # --------------------------------------------------------
-    # SSEBop
+    # SSEBop (OpenET)
     # --------------------------------------------------------
-    "SSEBOP": ETProduct(
+    "SSEBop": ETProduct(
         name="SSEBop",
-        product_type="Remote Sensing",
-        gee_collection="OpenET/SSEBOP/CONUS/GRIDMET/MONTHLY/v2_0",
+        collection="OpenET/SSEBOP/CONUS/GRIDMET/MONTHLY/v2_0",
         band="et",
-        scale=1000,
-        temporal_resolution="monthly",
+
         scale_factor=1.0,
+
+        spatial_resolution=1000,
+        temporal_resolution="Monthly",
+
         units="mm",
         provider="OpenET",
+        coverage="CONUS",
+        product_type="Remote Sensing",
     ),
 
     # --------------------------------------------------------
     # ERA5-Land
     # --------------------------------------------------------
-    "ERA5-LAND": ETProduct(
+    "ERA5-Land": ETProduct(
         name="ERA5-Land",
-        product_type="Reanalysis",
-        gee_collection="ECMWF/ERA5_LAND/DAILY_AGGR",
+        collection="ECMWF/ERA5_LAND/DAILY_AGGR",
         band="total_evaporation_sum",
-        scale=11132,
-        temporal_resolution="daily",
-        scale_factor=1.0,
-        units="m",
+
+        # meters -> millimeters
+        # sign convention:
+        # evaporation is negative
+        scale_factor=-1000.0,
+
+        spatial_resolution=11132,
+        temporal_resolution="Daily",
+
+        units="mm/day",
         provider="ECMWF",
+        coverage="Global",
+        product_type="Reanalysis",
     ),
 
 }
-
 
 # ============================================================
 # Product Lookup
@@ -139,11 +165,12 @@ def get_product(
     ETProduct
     """
 
+    key = name.upper()
+
     try:
-        return ET_PRODUCTS[name.upper()]
+        return ET_PRODUCTS[key]
 
     except KeyError as exc:
-
         raise ValueError(
             f"Unknown ET product: {name}"
         ) from exc
