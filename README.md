@@ -117,17 +117,23 @@ Common Dates
 
 ---
 
-## ✅ Milestone 5 — Benchmarking (Completed)
+## ✅ Milestone 5 — Benchmarking (Partial Completed)
 
-Implemented standard benchmarking metrics.
+Current Metrics
+---------------
+✔ RMSE
+✔ MAE
+✔ Bias
+✔ Pearson Correlation
+✔ R²
 
-Currently supported
-
-- RMSE
-- MAE
-- Bias
-- Pearson Correlation
-- R²
+Upcoming Benchmarking
+---------------------
+• Spatial Pattern
+• Seasonal Cycle
+• Interannual Variability
+• Distribution Comparison
+• Uncertainty Analysis
 
 ---
 
@@ -271,18 +277,6 @@ Spatial Harmonization
 
 ## Phase 4
 
-Advanced Benchmarking
-
-- Kling-Gupta Efficiency
-- Nash-Sutcliffe Efficiency
-- ubRMSE
-- Seasonal Metrics
-- Monthly Metrics
-
----
-
-## Phase 5
-
 Advanced Visualization
 
 - Taylor Diagram
@@ -293,7 +287,7 @@ Advanced Visualization
 
 ---
 
-## Phase 6
+## Phase 5
 
 ILAMB-style Evaluation
 
@@ -303,7 +297,7 @@ ILAMB-style Evaluation
 
 ---
 
-## Phase 7
+## Phase 6
 
 OpenETBench v1.0
 
