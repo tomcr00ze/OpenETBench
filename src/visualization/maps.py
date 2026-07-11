@@ -119,7 +119,7 @@ def plot_site(
     point.plot(
         ax=ax,
         color="red",
-        markersize=80,
+        markersize=120,
         zorder=5,
     )
 
@@ -129,7 +129,7 @@ def plot_site(
 
     ax.text(
         site.longitude + 0.4,
-        site.latitude + 0.4,
+        site.latitude + 0.2,
         site.id,
         fontsize=11,
         fontweight="bold",
@@ -140,8 +140,8 @@ def plot_site(
     # Zoom to India
     # --------------------------------------------------------
 
-    ax.set_xlim(65, 100)
-    ax.set_ylim(5, 38)
+    ax.set_xlim(67, 98)
+    ax.set_ylim(6, 37)
 
     # --------------------------------------------------------
     # Labels
