@@ -143,6 +143,27 @@ ET_PRODUCTS: dict[str, ETProduct] = {
         product_type="Reanalysis",
     ),
 
+    # --------------------------------------------------------
+    # GLDAS
+    # --------------------------------------------------------
+
+    "GLDAS": ETProduct(
+        name="GLDAS",
+        collection="NASA/GLDAS/V022/CLSM/G025/DA1D",
+        band="Evap_tavg",
+
+        # kg m-2 s-1 -> mm/day
+        scale_factor=86400.0,
+
+        spatial_resolution=27830,
+        temporal_resolution="Daily",
+
+        units="mm/day",
+        provider="NASA",
+        coverage="Global",
+        product_type="Land Surface Model",
+),
+
 }
 
 # ============================================================
