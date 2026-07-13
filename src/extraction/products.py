@@ -162,7 +162,25 @@ ET_PRODUCTS: dict[str, ETProduct] = {
         provider="NASA",
         coverage="Global",
         product_type="Land Surface Model",
-),
+    ),
+
+    # --------------------------------------------------------
+    # FLDAS
+    # --------------------------------------------------------
+    "FLDAS": ETProduct(
+        name="FLDAS",
+        collection="NASA/FLDAS/NOAH01/C/GL/M/V001",
+        band="Evap_tavg",
+
+        # kg m-2 s-1 -> mm/day
+        scale_factor=86400.0,
+        spatial_resolution=11100,
+        temporal_resolution="Monthly",
+        units="mm/day",
+        provider="NASA",
+        coverage="Global",
+        product_type="Land Surface Model",
+    ),
 
 }
 
