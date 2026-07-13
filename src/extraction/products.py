@@ -74,6 +74,8 @@ class ETProduct:
     provider: str
     coverage: str
     product_type: str
+    
+    aggregation: str = "native"
 
 
 # ============================================================
@@ -181,7 +183,27 @@ ET_PRODUCTS: dict[str, ETProduct] = {
         coverage="Global",
         product_type="Land Surface Model",
     ),
+    # --------------------------------------------------------
+    # MERRA2
+    # --------------------------------------------------------
+    "MERRA2": ETProduct(
+        name="MERRA2",
+        collection="NASA/GSFC/MERRA/lnd/2",
+        band="EVLAND",
 
+        # kg m^-2 hour^-1 → mm/day
+        scale_factor=3600.0,
+        spatial_resolution=55000,
+
+        # Native temporal resolution
+        temporal_resolution="Hourly",
+        units="mm/day",
+        provider="NASA",
+        coverage="Global",
+        # MERRA-2 is a reanalysis product
+        product_type="Reanalysis",
+        aggregation="daily_sum",
+    ),
 }
 
 # ============================================================

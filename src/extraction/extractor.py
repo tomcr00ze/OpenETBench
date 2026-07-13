@@ -7,6 +7,7 @@ Generic Google Earth Engine extractor.
 Author: Adarsh Jha
 """
 
+from extraction import products
 import ee
 import pandas as pd
 
@@ -64,14 +65,104 @@ def _load_collection(
     ee.ImageCollection
     """
 
-    return (
-        ee.ImageCollection(
-            product.collection
+    collection = (
+        ee.ImageCollection(product.collection)
+        .filterDate(start_date, end_date)
+    )
+    return _aggregate_collection(
+        collection=collection,
+        product=product,
+        start_date=start_date,
+        end_date=end_date,
+    )
+
+# ============================================================
+# Aggregate Collection
+# ============================================================
+
+def _aggregate_collection(
+    collection: ee.ImageCollection,
+    product: ETProduct,
+    start_date: str,
+    end_date: str,
+) -> ee.ImageCollection:
+    """
+    Aggregate an ImageCollection to the required
+    temporal resolution.
+
+    Parameters
+    ----------
+    collection : ee.ImageCollection
+
+    product : ETProduct
+
+    Returns
+    -------
+    ee.ImageCollection
+    """
+
+    # --------------------------------------------
+    # Most products need no aggregation
+    # --------------------------------------------
+
+    if product.aggregation == "native":
+        return collection
+
+    # --------------------------------------------
+    # Hourly → Daily Sum (MERRA-2)
+    # --------------------------------------------
+
+    if product.aggregation == "daily_sum":
+
+        start = ee.Date(start_date)
+        end = ee.Date(end_date).advance(
+            1,
+            "day",
         )
-        .filterDate(
-            start_date,
-            end_date,
+
+        days = ee.List.sequence(
+            0,
+            end.difference(start, "day").subtract(1),
         )
+
+        def daily_image(day):
+
+            day = ee.Number(day)
+
+            date = start.advance(
+                day,
+                "day",
+            )
+
+            image = (
+                collection
+                .filterDate(
+                    date,
+                    date.advance(
+                        1,
+                        "day",
+                    ),
+                )
+                .select(product.band)
+                .sum()
+                .set(
+                    {
+                        "system:time_start": date.millis(),
+                        "date": date.format("YYYY-MM-dd"),
+                    }
+                )
+            )
+
+            return image
+
+        return ee.ImageCollection(
+            days.map(
+                daily_image,
+            )
+        )
+
+    raise ValueError(
+        f"Unknown aggregation: {product.aggregation}"
     )
 
 # ============================================================
