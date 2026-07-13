@@ -76,6 +76,7 @@ class ETProduct:
     product_type: str
     
     aggregation: str = "native"
+    sampling: str = "mean"
 
 
 # ============================================================
@@ -102,6 +103,8 @@ ET_PRODUCTS: dict[str, ETProduct] = {
         provider="NASA",
         coverage="Global",
         product_type="Remote Sensing",
+        
+        sampling="mean", 
     ),
 
     # --------------------------------------------------------
@@ -121,6 +124,8 @@ ET_PRODUCTS: dict[str, ETProduct] = {
         provider="OpenET",
         coverage="CONUS",
         product_type="Remote Sensing",
+
+        sampling="mean", 
     ),
 
     # --------------------------------------------------------
@@ -203,6 +208,7 @@ ET_PRODUCTS: dict[str, ETProduct] = {
         # MERRA-2 is a reanalysis product
         product_type="Reanalysis",
         aggregation="daily_sum",
+        sampling="point",
     ),
 }
 

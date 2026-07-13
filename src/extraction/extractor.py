@@ -115,10 +115,7 @@ def _aggregate_collection(
     if product.aggregation == "daily_sum":
 
         start = ee.Date(start_date)
-        end = ee.Date(end_date).advance(
-            1,
-            "day",
-        )
+        end = ee.Date(end_date)
 
         days = ee.List.sequence(
             0,
@@ -182,24 +179,45 @@ def _reduce_image(
     ee.Feature
     """
 
-    value = image.select(
-        product.band
-    ).reduceRegion(
-        reducer=ee.Reducer.mean(),
-        geometry=region,
-        scale=product.spatial_resolution,
-        maxPixels=1e9,
+    # --------------------------------------------------------
+    # Sampling geometry
+    # --------------------------------------------------------
+
+    if product.sampling == "point":
+        geometry = region.centroid()
+
+    elif product.sampling == "mean":
+        geometry = region
+
+    else:
+        raise ValueError(
+            f"Unknown sampling strategy: {product.sampling}"
+        )
+
+    # --------------------------------------------------------
+    # Reduce image
+    # --------------------------------------------------------
+
+    value = (
+        image
+        .select(product.band)
+        .reduceRegion(
+            reducer=ee.Reducer.mean(),
+            geometry=geometry,
+            scale=product.spatial_resolution,
+            maxPixels=1e9,
+        )
     )
+
+    # --------------------------------------------------------
+    # Return feature
+    # --------------------------------------------------------
 
     return ee.Feature(
         None,
         {
-            "date": image.date().format(
-                "YYYY-MM-dd"
-            ),
-            "ET": value.get(
-                product.band
-            ),
+            "date": image.date().format("YYYY-MM-dd"),
+            "ET": value.get(product.band),
         },
     )
 
