@@ -136,7 +136,7 @@ def plot_scatter(
     )
 
     ax.set_title(
-        f"{product_name} vs BharatFlux\n"
+        f"{product_name} vs Observed ET\n"
         f"{site} ({year})",
         fontsize=15,
         fontweight="bold",
