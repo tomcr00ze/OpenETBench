@@ -148,7 +148,7 @@ def plot_site(
     # --------------------------------------------------------
 
     ax.set_title(
-        f"BharatFlux Site: {site.id}",
+        f"Flux Tower Site: {site.id}",
         fontsize=15,
         fontweight="bold",
     )
