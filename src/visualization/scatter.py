@@ -169,9 +169,9 @@ def plot_scatter(
 
     textbox = (
     f"n    : {n}\n"
-    f"RMSE : {metrics.rmse:.2f}\n"
-    f"MAE  : {metrics.mae:.2f}\n"
-    f"Bias : {metrics.bias:.2f}\n"
+    f"RMSE : {metrics.rmse:.2f} mm day⁻¹\n"
+    f"MAE  : {metrics.mae:.2f} mm day⁻¹\n"
+    f"Bias : {metrics.bias:.2f} mm day⁻¹\n"
     f"r    : {metrics.correlation:.3f}\n"
     f"R²   : {metrics.r2:.3f}"
 )
