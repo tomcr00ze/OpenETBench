@@ -126,12 +126,12 @@ def plot_scatter(
     # --------------------------------------------------------
 
     ax.set_xlabel(
-        "Observed ET (mm/day)",
+        "Observed ET (mm day⁻¹)",
         fontsize=12,
     )
 
     ax.set_ylabel(
-        "Satellite ET (mm/day)",
+        "Satellite ET (mm day⁻¹)",
         fontsize=12,
     )
 
