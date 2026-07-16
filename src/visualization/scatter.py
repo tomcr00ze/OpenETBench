@@ -19,6 +19,10 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import pandas as pd
 
+# Set default font to Times New Roman
+plt.rcParams["font.family"] = "serif"
+plt.rcParams["font.serif"] = ["Times New Roman"]
+
 from benchmarking.metrics import MetricsReport
 
 
@@ -168,13 +172,13 @@ def plot_scatter(
     n = len(merged)
 
     textbox = (
-    f"n    : {n}\n"
-    f"RMSE : {metrics.rmse:.2f} mm day⁻¹\n"
-    f"MAE  : {metrics.mae:.2f} mm day⁻¹\n"
-    f"Bias : {metrics.bias:.2f} mm day⁻¹\n"
-    f"r    : {metrics.correlation:.3f}\n"
-    f"R²   : {metrics.r2:.3f}"
-)
+        f"n    : {n}\n"
+        f"RMSE : {metrics.rmse:.2f} mm day⁻¹\n"
+        f"MAE  : {metrics.mae:.2f} mm day⁻¹\n"
+        f"Bias : {metrics.bias:.2f} mm day⁻¹\n"
+        f"r    : {metrics.correlation:.3f}\n"
+        f"R²   : {metrics.r2:.3f}"
+    )
 
     ax.text(
         0.95,
@@ -182,15 +186,17 @@ def plot_scatter(
         textbox,
         transform=ax.transAxes,
         fontsize=11,
+        fontfamily="monospace",
         horizontalalignment="right",
         verticalalignment="bottom",
+        multialignment="left",
         bbox=dict(
             boxstyle="round",
             facecolor="white",
             edgecolor="black",
             alpha=0.90,
         ),
-)
+    )
 
     # --------------------------------------------------------
     # Layout

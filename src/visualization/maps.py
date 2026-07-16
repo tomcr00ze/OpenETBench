@@ -17,6 +17,10 @@ from pathlib import Path
 import geopandas as gpd
 import matplotlib.pyplot as plt
 
+# Set default font to Times New Roman
+plt.rcParams["font.family"] = "serif"
+plt.rcParams["font.serif"] = ["Times New Roman"]
+
 from extraction.sites import Site
 
 
