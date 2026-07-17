@@ -68,6 +68,10 @@ Implemented Google Earth Engine integration.
 Current supported product
 
 - MOD16A2GF
+- ERA5-Land
+- GLDAS
+- FLDAS
+- MERRA-2
 
 Current supported site
 
@@ -75,16 +79,19 @@ Current supported site
 
 ---
 
-## ✅ Milestone 3 — MOD16A2GF Extraction (Completed)
+## ✅ Milestone 3 — Earth Engine ET Extraction Framework (Completed)
 
-Implemented satellite ET extraction directly from Google Earth Engine.
+Implemented a modular Google Earth Engine extraction framework for
+multiple ET products.
 
 ### Features
 
-- Circular extraction region around Flux Tower
-- ImageCollection filtering
-- Mean ET extraction
-- Time series generation
+- Generic ET product registry
+- Automatic ImageCollection loading
+- Spatial reduction
+- Temporal aggregation
+- Product-specific scale factors
+- Daily time-series generation
 - Day-of-Year computation
 
 Output
