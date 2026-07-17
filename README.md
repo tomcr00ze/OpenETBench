@@ -104,6 +104,18 @@ Satellite_ET
 
 ---
 
+## ✅ Extraction Framework Enhancements
+
+Recent improvements include:
+
+- Product-specific temporal aggregation strategies
+- Hourly → Daily aggregation for MERRA-2
+- Product-specific spatial sampling strategies
+- Generic extraction pipeline reusable across ET products
+- Support for coarse-resolution reanalysis datasets
+
+--- 
+
 ## ✅ Milestone 4 — Harmonization (Completed)
 
 Implemented temporal harmonization.
