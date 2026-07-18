@@ -188,7 +188,13 @@ Processed BharatFlux
 Google Earth Engine
         │
         ▼
-Satellite ET Extraction
+ET Product Extraction
+        │
+        ▼
+Temporal Aggregation
+        │
+        ▼
+Spatial Reduction
         │
         ▼
 Temporal Harmonization
@@ -269,18 +275,23 @@ src/
 
 ## Phase 2 (In Progress)
 
-Support additional ET products
+### Completed
 
-- SSEBop
-- ALEXI
-- DisALEXI
+- MOD16A2GF
 - GLEAM
-- PML-V2
-- BESS
+- SSEBop
 - ERA5-Land
 - GLDAS
 - FLDAS
 - MERRA-2
+
+### Remaining
+
+- PML-V2
+- ETMonitor
+- ALEXI
+- DisALEXI
+- BESS
 
 ---
 
