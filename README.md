@@ -207,6 +207,28 @@ Benchmark Metrics
         │
         ▼
 Visualization
+
+```
+# Extraction Architecture
+
+Each ET product is described through a metadata registry.
+
+```
+
+ETProduct
+      │
+      ▼
+Load ImageCollection
+      │
+      ▼
+Temporal Aggregation
+      │
+      ▼
+Spatial Reduction
+      │
+      ▼
+DataFrame Conversion
+
 ```
 
 ---
