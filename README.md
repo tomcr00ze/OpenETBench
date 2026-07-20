@@ -18,6 +18,9 @@ The toolkit aims to provide a reproducible pipeline for
 
 Although initially developed using the BharatFlux network, the architecture is designed to support other Flux Tower networks (e.g., FLUXNET) with minimal changes.
 
+The framework now supports both native daily ET products and
+high-frequency datasets requiring temporal aggregation (e.g. MERRA-2).
+
 ---
 
 # Current Project Status
