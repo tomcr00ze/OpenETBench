@@ -183,7 +183,10 @@ def _reduce_image(
     # Sampling geometry
     # --------------------------------------------------------
 
-    if product.sampling == "point":
+    if product.sampling == "buffer":
+        geometry = region
+        
+    elif product.sampling == "point":
         geometry = region.centroid()
 
     elif product.sampling == "mean":
