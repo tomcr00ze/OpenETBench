@@ -210,6 +210,28 @@ ET_PRODUCTS: dict[str, ETProduct] = {
         aggregation="daily_sum",
         sampling="point",
     ),
+
+    # --------------------------------------------------------
+    # PMLV2
+    # --------------------------------------------------------
+    "PMLV2": ETProduct(
+        name="PML-V2",
+        collection="projects/pml_evapotranspiration/PML/OUTPUT/PML_V22a",
+        band="ET",
+
+        # Stored as scaled integers
+        scale_factor=0.01,
+        spatial_resolution=500,
+        temporal_resolution="8-day",
+        units="mm/8-day",
+
+        provider="PML",
+        coverage="Global",
+        product_type="Remote Sensing",
+
+        aggregation="native",
+        sampling="buffer",
+    ),
 }
 
 # ============================================================
