@@ -19,18 +19,18 @@ The goal is to maintain a transparent engineering log describing:
 | Status | Meaning |
 |---------|---------|
 | ✅ Completed | Fully integrated and tested in the extraction framework |
-| 🔍 Pending Investigation | Investigation is ongoing |
-| ⏸ Deferred | Planned for future implementation using external datasets (NetCDF, GeoTIFF, uploaded GEE assets, etc.) |
+| ⏸ Deferred (External Dataset Integration) | Product requires external datasets, uploaded GEE assets, NetCDF, GeoTIFF or custom implementation |
+| 🔍 Under Investigation | Investigation still ongoing |
 
 ---
 
 # Project Development Strategy
 
-The benchmark consists of **15 target ET products**.
+The benchmark consists of **15 predefined ET products**.
 
-We intentionally do **not** add new products outside this list until all target products have been investigated.
+We intentionally do **not** introduce additional ET products until these fifteen products have been completely investigated.
 
-The benchmark list is:
+Target products:
 
 1. MOD16A2GF
 2. GLEAM
@@ -65,10 +65,10 @@ The benchmark list is:
 | ALEXI ET | ⏸ Deferred |
 | DisALEXI | ⏸ Deferred |
 | BESS | ⏸ Deferred |
-| FLUXCOM-X | 🔍 Pending Investigation |
+| FLUXCOM-X (X-BASE ET) | ⏸ Deferred |
 | GLASS ET | ⏸ Deferred |
-| MuSyQ ET | 🔍 Pending Investigation |
-| SMAP-PM ET | 🔍 Pending Investigation |
+| MuSyQ ET | ⏸ Deferred |
+| SMAP-PM ET | ⏸ Deferred |
 
 ---
 
@@ -82,11 +82,11 @@ The benchmark list is:
 
 Implemented.
 
-### Reason
+### Findings
 
-- Publicly available in GEE.
-- Stable.
+- Native public GEE dataset.
 - Global coverage.
+- Stable MODIS product.
 - Native extraction supported.
 
 ### Status
@@ -97,17 +97,14 @@ Implemented.
 
 ## 2. GLEAM
 
-### Investigation
-
-Global ET product.
-
 ### Findings
 
-- No official public ImageCollection in GEE.
+- No official public ImageCollection available in GEE.
+- Distributed primarily as NetCDF.
 
 ### Decision
 
-Implement later using NetCDF or uploaded assets.
+Move to External Dataset Integration.
 
 ### Status
 
@@ -117,19 +114,14 @@ Implement later using NetCDF or uploaded assets.
 
 ## 3. SSEBop ET
 
-### Investigation
-
-Global ET product exists.
-
 ### Findings
 
-OpenET provides only CONUS implementation.
-
-No public global GEE ImageCollection.
+- OpenET implementation available only for CONUS.
+- No public global ImageCollection.
 
 ### Decision
 
-Implement later using external dataset.
+Move to External Dataset Integration.
 
 ### Status
 
@@ -139,12 +131,10 @@ Implement later using external dataset.
 
 ## 4. ERA5-Land
 
-Implemented successfully.
+### Findings
 
-### Notes
-
-- Daily product
-- Native GEE support
+- Native GEE support.
+- Daily product.
 
 ### Status
 
@@ -152,9 +142,9 @@ Implemented successfully.
 
 ---
 
-## 5. FLDAS
+## 5. FLDAS Global
 
-Implemented successfully.
+Successfully integrated.
 
 ### Status
 
@@ -164,7 +154,7 @@ Implemented successfully.
 
 ## 6. GLDAS
 
-Implemented successfully.
+Successfully integrated.
 
 ### Status
 
@@ -174,21 +164,14 @@ Implemented successfully.
 
 ## 7. MERRA-2
 
-### Investigation Summary
+### Engineering Notes
 
-Originally produced hourly values.
+Originally an hourly product.
 
-### Engineering Changes
+Framework enhancements introduced:
 
-Implemented custom:
-
-- hourly → daily aggregation
-- point sampling
-
-Added new framework concepts:
-
-- aggregation strategy
-- sampling strategy
+- Hourly → Daily aggregation
+- Sampling strategy abstraction
 
 ### Status
 
@@ -198,23 +181,25 @@ Added new framework concepts:
 
 ## 8. PML-V2
 
-### Investigation Summary
+### Dataset
 
-Collection:
-
+```
 projects/pml_evapotranspiration/PML/OUTPUT/PML_V22a
+```
 
 ### Findings
 
-- ET band = ET
-- Scale factor = 0.01
-- 8-day product
-- Global coverage
-- Buffer sampling works
+- ET band available.
+- Scale factor = 0.01.
+- Global coverage.
+- 8-day temporal resolution.
+- Buffer sampling supported.
 
-### Decision
+### Engineering Notes
 
-Integrated directly.
+Framework updated to support:
+
+- Buffer sampling strategy
 
 ### Status
 
@@ -224,23 +209,19 @@ Integrated directly.
 
 ## 9. ALEXI ET
 
-### Investigation
-
-Only public GEE implementation found:
-
-projects/openet/assets/disalexi/conus/gridmet/monthly_v2_1
-
 ### Findings
 
-- OpenET implementation
-- CONUS only
-- Not applicable for BharatFlux sites
+Only OpenET CONUS implementation exists.
 
-Original ALEXI algorithm is global but no public global precomputed GEE dataset currently exists.
+```
+projects/openet/assets/disalexi/conus/gridmet/monthly_v2_1
+```
+
+Original ALEXI algorithm is global, but no global precomputed GEE dataset currently exists.
 
 ### Decision
 
-Implement later using external datasets or custom implementation.
+Move to External Dataset Integration.
 
 ### Status
 
@@ -250,7 +231,15 @@ Implement later using external datasets or custom implementation.
 
 ## 10. DisALEXI
 
-Same findings as ALEXI.
+### Findings
+
+Same situation as ALEXI.
+
+Only OpenET CONUS implementation exists.
+
+### Decision
+
+Move to External Dataset Integration.
 
 ### Status
 
@@ -260,21 +249,21 @@ Same findings as ALEXI.
 
 ## 11. BESS
 
-### Investigation
+### Public Dataset
 
-Public GEE dataset:
-
+```
 SNU/ESL/BESS/Rad/v1
+```
 
 ### Findings
 
-Only radiation variables available.
+Contains only radiation variables.
 
-No ET product exists in public GEE.
+No ET product is publicly available in GEE.
 
 ### Decision
 
-Implement later using external dataset.
+Move to External Dataset Integration.
 
 ### Status
 
@@ -282,25 +271,35 @@ Implement later using external dataset.
 
 ---
 
-## 12. FLUXCOM-X
+## 12. FLUXCOM-X (X-BASE ET)
 
-Investigation pending.
+### Findings
+
+- Final ET products are distributed through the ICOS Carbon Portal.
+- No official public GEE ImageCollection exists.
+- GEE is used only for processing some input datasets.
+
+### Decision
+
+Move to External Dataset Integration.
 
 ### Status
 
-🔍 Pending Investigation
+⏸ Deferred
 
 ---
 
 ## 13. GLASS ET
 
-### Investigation
+### Findings
 
-No official public GEE dataset found.
+No official public GEE ImageCollection available.
+
+Distributed externally.
 
 ### Decision
 
-Implement later using external dataset.
+Move to External Dataset Integration.
 
 ### Status
 
@@ -310,31 +309,62 @@ Implement later using external dataset.
 
 ## 14. MuSyQ ET
 
-Investigation pending.
+### Findings
+
+- Not available in the public GEE catalog.
+- Distributed as external raster products.
+- Primarily covers the China–ASEAN region.
+- Can be uploaded manually into GEE if required.
+
+### Decision
+
+Move to External Dataset Integration.
 
 ### Status
 
-🔍 Pending Investigation
+⏸ Deferred
 
 ---
 
 ## 15. SMAP-PM ET
 
-Investigation pending.
+### Findings
+
+Public GEE provides:
+
+```
+NASA/SMAP/SPL4SMGP/008
+```
+
+This is the SMAP Level-4 land surface model product, **not** the published SMAP-PM ET benchmark dataset.
+
+Although it contains:
+
+```
+land_evapotranspiration_flux
+```
+
+this variable is **not equivalent** to the published SMAP-PM ET product intended for benchmarking.
+
+### Decision
+
+To preserve scientific consistency, SMAP-PM will not be substituted with the Level-4 evapotranspiration flux variable.
+
+Move to External Dataset Integration.
 
 ### Status
 
-🔍 Pending Investigation
+⏸ Deferred
 
 ---
 
 # Engineering Decisions
 
-## Phase 1
+## Phase 1 — Native GEE Products
 
-Implement all products that can be extracted directly from Google Earth Engine.
+Implemented directly through public Google Earth Engine datasets.
 
-Current products:
+Completed products:
 
 - MOD16A2GF
 - ERA5-Land
@@ -345,25 +375,55 @@ Current products:
 
 ---
 
-## Phase 2
+## Phase 2 — External Dataset Integration
 
-Support external datasets.
-
-Planned input formats:
+Products requiring one of:
 
 - NetCDF
 - GeoTIFF
-- Uploaded Earth Engine Assets
-- Other research datasets
+- Uploaded GEE Assets
+- Custom Earth Engine Assets
+- Local preprocessing pipelines
 
 Products:
 
 - GLEAM
 - SSEBop
-- BESS
-- GLASS
 - ALEXI
 - DisALEXI
+- BESS
+- FLUXCOM-X
+- GLASS
+- MuSyQ
+- SMAP-PM
+
+---
+
+# Framework Enhancements During Development
+
+During implementation the extraction framework evolved to support:
+
+- Product abstraction
+- Aggregation strategies
+- Sampling strategies
+- Hourly → Daily aggregation
+- Buffer sampling
+- Scale factor handling
+- Modular product configuration
+
+---
+
+# Current Progress
+
+## Native GEE Products
+
+**6 / 15 completed**
+
+## External Dataset Integration
+
+**9 / 15 deferred**
+
+These deferred products remain scientifically valid targets and will be implemented during the second development phase using external datasets or uploaded Earth Engine assets.
 
 ---
 
@@ -371,13 +431,14 @@ Products:
 
 This document should be updated after every product investigation.
 
-Each new entry should include:
+Each new investigation should document:
 
-- Availability
-- Collection ID
+- Dataset availability
+- GEE Collection ID
+- ET band
 - Scale factor
-- Temporal resolution
 - Spatial resolution
+- Temporal resolution
 - Sampling strategy
 - Aggregation strategy
 - Engineering decisions
