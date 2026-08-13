@@ -52,13 +52,13 @@ DEFAULT_PRODUCTS = [
 def _load_metrics(path: Path) -> MetricsReport:
     with path.open("r", encoding="utf-8") as handle:
         payload = json.load(handle)
-    metrics = payload["metrics"]
+
     return MetricsReport(
-        rmse=float(metrics["rmse"]),
-        mae=float(metrics["mae"]),
-        bias=float(metrics["bias"]),
-        correlation=float(metrics["correlation"]),
-        r2=float(metrics["r2"]),
+        rmse=float(payload["rmse"]),
+        mae=float(payload["mae"]),
+        bias=float(payload["bias"]),
+        correlation=float(payload["correlation"]),
+        r2=float(payload["r2"]),
     )
 
 
