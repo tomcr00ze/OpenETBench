@@ -196,7 +196,12 @@ ET_PRODUCTS: dict[str, ETProduct] = {
         collection="NASA/GSFC/MERRA/lnd/2",
         band="EVLAND",
 
-        # kg m^-2 hour^-1 → mm/day
+        # EVLAND is hourly mean evaporation flux in kg m^-2 s^-1.
+        # The extractor first sums the 24 hourly fluxes for each day.
+        # Multiplying the daily sum by 3600 converts:
+        #   kg m^-2 s^-1 × s/hour → kg m^-2/day
+        # and approximately:
+        #   kg m^-2 → mm water equivalent
         scale_factor=3600.0,
         spatial_resolution=55000,
 
