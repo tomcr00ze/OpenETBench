@@ -48,6 +48,9 @@ WORLD_SHP = (
 def plot_site(
     site: Site,
     output_dir: Path,
+    *,
+    product_name: str | None = None,
+    figure_path: Path | None = None,
 ) -> Path:
     """
     Plot the location of a BharatFlux site.
@@ -70,25 +73,26 @@ def plot_site(
     # Create output directory
     # --------------------------------------------------------
 
-    figure_dir = output_dir / "maps"
-
-    figure_dir.mkdir(
-        parents=True,
-        exist_ok=True,
-    )
-
-    figure_path = (
-        figure_dir
-        / f"{site.id}.png"
-    )
+    if figure_path is None:
+        figure_dir = output_dir / "maps"
+        figure_dir.mkdir(parents=True, exist_ok=True)
+        filename = f"{site.id}.png" if product_name is None else f"{product_name}_{site.id}.png"
+        figure_path = figure_dir / filename
+    else:
+        figure_path.parent.mkdir(parents=True, exist_ok=True)
 
     # --------------------------------------------------------
-    # Load Natural Earth shapefile
+    # Load Natural Earth shapefile when available.
+    # Otherwise fall back to a lightweight coordinate map so the
+    # visualization layer remains usable in a clean source checkout.
     # --------------------------------------------------------
 
-    world = gpd.read_file(
-        WORLD_SHP
-    )
+    world = None
+    if WORLD_SHP.exists():
+        try:
+            world = gpd.read_file(WORLD_SHP)
+        except Exception:
+            world = None
 
     # --------------------------------------------------------
     # Create site GeoDataFrame
@@ -113,12 +117,13 @@ def plot_site(
         figsize=(8, 8),
     )
 
-    world.plot(
-        ax=ax,
-        color="whitesmoke",
-        edgecolor="gray",
-        linewidth=0.5,
-    )
+    if world is not None:
+        world.plot(
+            ax=ax,
+            color="whitesmoke",
+            edgecolor="gray",
+            linewidth=0.5,
+        )
 
     point.plot(
         ax=ax,
@@ -151,8 +156,12 @@ def plot_site(
     # Labels
     # --------------------------------------------------------
 
+    title = f"Flux Tower Site: {site.id}"
+    if product_name:
+        title = f"{product_name} — Flux Tower Site: {site.id}"
+
     ax.set_title(
-        f"Flux Tower Site: {site.id}",
+        title,
         fontsize=15,
         fontweight="bold",
     )

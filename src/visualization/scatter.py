@@ -35,8 +35,10 @@ def plot_scatter(
     metrics: MetricsReport,
     product_name: str,
     site: str,
-    year: int,
+    year: int | None,
     output_dir: Path,
+    *,
+    figure_path: Path | None = None,
 ) -> Path:
     """
     Plot observed vs satellite ET.
@@ -71,17 +73,12 @@ def plot_scatter(
     # Create output directory
     # --------------------------------------------------------
 
-    figure_dir = output_dir / "scatter"
-
-    figure_dir.mkdir(
-        parents=True,
-        exist_ok=True,
-    )
-
-    figure_path = (
-        figure_dir
-        / f"{product_name}_{site}_{year}.png"
-    )
+    if figure_path is None:
+        figure_dir = output_dir / "scatter"
+        figure_dir.mkdir(parents=True, exist_ok=True)
+        figure_path = figure_dir / f"{product_name}_{site}_{year}.png"
+    else:
+        figure_path.parent.mkdir(parents=True, exist_ok=True)
 
     # --------------------------------------------------------
     # Create figure
@@ -139,9 +136,10 @@ def plot_scatter(
         fontsize=12,
     )
 
+    period = f" ({year})" if year is not None else ""
     ax.set_title(
         f"{product_name} vs Observed ET\n"
-        f"{site} ({year})",
+        f"{site}{period}",
         fontsize=15,
         fontweight="bold",
     )
