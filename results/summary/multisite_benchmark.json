@@ -1,0 +1,24 @@
+{
+    "n_site_product_combinations": 1,
+    "sites": [
+        "BIT"
+    ],
+    "products": [
+        "MOD16A2GF"
+    ],
+    "results": [
+        {
+            "Site": "BIT",
+            "Product": "MOD16A2GF",
+            "Year": 2016,
+            "N": 26,
+            "Start": "2016-01-01",
+            "End": "2017-01-01",
+            "RMSE": 8.508206741517666,
+            "MAE": 7.734856865541222,
+            "BIAS": 7.734856865541222,
+            "CORRELATION": 0.18561567577192456,
+            "R2": 0.03445317909226822
+        }
+    ]
+}

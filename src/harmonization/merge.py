@@ -26,6 +26,13 @@ def merge_observed_satellite(
     """
     Merge temporally aligned BharatFlux and satellite ET datasets.
 
+    The merge is performed using DoY because temporal alignment has
+    already established the common observation dates.
+
+    A canonical Date column is retained regardless of whether both
+    input
+    dataframes contain Date.
+
     Parameters
     ----------
     observed : pandas.DataFrame
@@ -47,11 +54,36 @@ def merge_observed_satellite(
         satellite,
         on="DoY",
         how="inner",
-        suffixes=(
-            "_Observed",
-            "_Satellite",
-        ),
+        suffixes=("_Observed", "_Satellite"),
     )
+
+    # --------------------------------------------------------
+    # Resolve canonical Date column
+    # --------------------------------------------------------
+
+    if "Date_Observed" in merged.columns:
+        merged["Date"] = pd.to_datetime(
+            merged["Date_Observed"]
+        )
+
+    elif "Date_Satellite" in merged.columns:
+        merged["Date"] = pd.to_datetime(
+            merged["Date_Satellite"]
+        )
+
+    elif "Date" in merged.columns:
+        merged["Date"] = pd.to_datetime(
+            merged["Date"]
+        )
+
+    else:
+        raise KeyError(
+            "Merged dataframe does not contain a Date column."
+        )
+
+    # --------------------------------------------------------
+    # Rename benchmark variables
+    # --------------------------------------------------------
 
     merged.rename(
         columns={
@@ -62,6 +94,10 @@ def merge_observed_satellite(
         inplace=True,
     )
 
+    # --------------------------------------------------------
+    # Return canonical benchmark dataframe
+    # --------------------------------------------------------
+
     return merged[
         [
             "Date",
@@ -70,4 +106,8 @@ def merge_observed_satellite(
             "Observed_ET",
             "Satellite_ET",
         ]
-    ]
+    ].sort_values(
+        "Date"
+    ).reset_index(
+        drop=True
+    )

@@ -1,0 +1,8 @@
+[
+    {
+        "site": "BIT",
+        "product": "MOD16A2GF",
+        "stage": "pipeline",
+        "error": "KeyError: \"['Date'] not in index\""
+    }
+]
