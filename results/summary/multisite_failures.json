@@ -1,8 +1,14 @@
 [
     {
-        "site": "BKC",
-        "product": "GLDAS",
+        "site": "SFT",
+        "product": "MOD16A2GF",
         "stage": "pipeline",
-        "error": "ValueError: GLDAS: no valid ET observations were returned for the requested site and period."
+        "error": "ValueError: MOD16A2GF: no valid ET observations were returned for the requested site and period."
+    },
+    {
+        "site": "SIT",
+        "product": "FLDAS",
+        "stage": "pipeline",
+        "error": "ValueError: SIT/FLDAS: no common DoY values after temporal alignment."
     }
 ]
