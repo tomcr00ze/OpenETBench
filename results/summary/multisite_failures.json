@@ -1,8 +1,8 @@
 [
     {
-        "site": "BIT",
-        "product": "MOD16A2GF",
+        "site": "BKC",
+        "product": "GLDAS",
         "stage": "pipeline",
-        "error": "KeyError: \"['Date'] not in index\""
+        "error": "ValueError: GLDAS: no valid ET observations were returned for the requested site and period."
     }
 ]

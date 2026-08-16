@@ -276,12 +276,14 @@ def _to_dataframe(
 
         properties = feature["properties"]
 
+        et_value = properties.get("ET")
+
         rows.append(
             {
-                "Date": properties["date"],
+                "Date": properties.get("date"),
                 "ET": (
-                    float(properties["ET"]) * product.scale_factor
-                    if properties["ET"] is not None
+                    float(et_value) * product.scale_factor
+                    if et_value is not None
                     else None
                 ),
             }
@@ -292,6 +294,12 @@ def _to_dataframe(
     df = df.dropna(
         subset=["ET"]
     )
+
+    if df.empty:
+        raise ValueError(
+            f"{product.name}: no valid ET observations were returned "
+            "for the requested site and period."
+        )
 
     df["Date"] = pd.to_datetime(
         df["Date"]

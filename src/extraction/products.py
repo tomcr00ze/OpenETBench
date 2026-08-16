@@ -169,6 +169,11 @@ ET_PRODUCTS: dict[str, ETProduct] = {
         provider="NASA",
         coverage="Global",
         product_type="Land Surface Model",
+        # GLDAS has a coarse 27.83 km grid.
+        # Sample the pixel containing the tower coordinate
+        # rather than requiring a coarse pixel to fall inside
+        # the 700 m tower buffer.
+        sampling="point",
     ),
 
     # --------------------------------------------------------
