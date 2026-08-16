@@ -265,20 +265,16 @@ def _run_one_product(
 
 def run(
     *,
-    sites: list[str],
+    sites: list[str] | None,
     products: list[str],
     year: int,
     processed_dir: Path,
     results_root: Path,
+    all_sites: bool = False,
 ) -> int:
     """Run Sprint 4 validation and create the consolidated benchmark."""
 
-    sites = [site.strip().upper() for site in sites]
     products = [product.strip().upper() for product in products]
-
-    # Validate arguments before touching GEE.
-    for site_id in sites:
-        get_site(site_id)
 
     for product_id in products:
         if product_id not in ET_PRODUCTS:
@@ -301,6 +297,34 @@ def run(
 
     print("Loading processed BharatFlux datasets...")
     datasets = load_bharatflux(processed_dir)
+
+    if all_sites:
+        sites = sorted(
+            {
+                dataset.info.site.upper()
+                for dataset in datasets.values()
+                if int(dataset.info.year) == int(year)
+            }
+        )
+
+        if not sites:
+            raise FileNotFoundError(
+                f"No processed BharatFlux datasets found for year {year}."
+            )
+
+        print(
+            f"Auto-discovered {len(sites)} processed sites for {year}: "
+            f"{', '.join(sites)}"
+        )
+    else:
+        sites = [
+            site.strip().upper()
+            for site in (sites or [])
+        ]
+
+    # Validate requested/discovered sites against the site registry.
+    for site_id in sites:
+        get_site(site_id)
 
     records: list[dict] = []
     failures: list[dict] = []
@@ -399,6 +423,14 @@ def main() -> int:
         help="BharatFlux site IDs.",
     )
     parser.add_argument(
+        "--all-sites",
+        action="store_true",
+        help=(
+            "Automatically discover all processed BharatFlux sites "
+            "available for the requested year."
+        ),
+    )
+    parser.add_argument(
         "--products",
         nargs="+",
         default=DEFAULT_PRODUCTS,
@@ -431,6 +463,7 @@ def main() -> int:
         year=args.year,
         processed_dir=args.processed_dir,
         results_root=args.results_root,
+        all_sites=args.all_sites,
     )
 
 
