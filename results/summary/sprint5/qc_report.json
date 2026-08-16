@@ -1,0 +1,31 @@
+{
+    "sprint": 5,
+    "minimum_n_threshold": 10,
+    "minimum_n_is_operational_qc": true,
+    "successful_combinations": 64,
+    "eligible_combinations": 55,
+    "below_minimum_n": 9,
+    "eligibility_rate": 0.859375,
+    "n_min": 2,
+    "n_median": 46.0,
+    "n_mean": 130.640625,
+    "n_max": 366,
+    "n_lt_5": 4,
+    "n_5_to_9": 5,
+    "n_10_to_19": 9,
+    "n_ge_20": 46,
+    "sprint4_failures": [
+        {
+            "site": "SFT",
+            "product": "MOD16A2GF",
+            "stage": "pipeline",
+            "error": "ValueError: MOD16A2GF: no valid ET observations were returned for the requested site and period."
+        },
+        {
+            "site": "SIT",
+            "product": "FLDAS",
+            "stage": "pipeline",
+            "error": "ValueError: SIT/FLDAS: no common DoY values after temporal alignment."
+        }
+    ]
+}
