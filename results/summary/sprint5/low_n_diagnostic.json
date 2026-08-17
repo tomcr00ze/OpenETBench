@@ -1,0 +1,210 @@
+{
+  "minimum_n": 10,
+  "low_n_count": 9,
+  "low_n_combinations": [
+    {
+      "Site": "SIT",
+      "Product": "MOD16A2GF",
+      "Year": 2016,
+      "N": 2,
+      "N_CATEGORY": "INSUFFICIENT",
+      "EXPECTED_TEMPORAL_SAMPLING": "8-day",
+      "RMSE": 5.090108857315131,
+      "MAE": 4.762583365671836,
+      "BIAS": 4.762583365671836,
+      "CORRELATION": 1.0,
+      "R2": 1.0,
+      "DIAGNOSTIC": "very low overlap; MOD16A2GF has 8-day sampling, so N is naturally lower than daily products"
+    },
+    {
+      "Site": "SIT",
+      "Product": "PMLV2",
+      "Year": 2016,
+      "N": 2,
+      "N_CATEGORY": "INSUFFICIENT",
+      "EXPECTED_TEMPORAL_SAMPLING": "8-day",
+      "RMSE": 0.0513214218238471,
+      "MAE": 0.0512909883333335,
+      "BIAS": -0.0512909883333335,
+      "CORRELATION": 1.0,
+      "R2": 0.9999999999999998,
+      "DIAGNOSTIC": "very low overlap; PMLV2 has 8-day sampling, so N is naturally lower than daily products"
+    },
+    {
+      "Site": "BKC",
+      "Product": "FLDAS",
+      "Year": 2016,
+      "N": 3,
+      "N_CATEGORY": "INSUFFICIENT",
+      "EXPECTED_TEMPORAL_SAMPLING": "monthly/irregular",
+      "RMSE": 0.2274504198845545,
+      "MAE": 0.2037547605152707,
+      "BIAS": 0.1525156568873537,
+      "CORRELATION": 0.2039619931114444,
+      "R2": 0.0416004946339929,
+      "DIAGNOSTIC": "very low overlap; sparse temporal sampling is expected for FLDAS"
+    },
+    {
+      "Site": "SFT",
+      "Product": "FLDAS",
+      "Year": 2016,
+      "N": 3,
+      "N_CATEGORY": "INSUFFICIENT",
+      "EXPECTED_TEMPORAL_SAMPLING": "monthly/irregular",
+      "RMSE": 0.9615862784300588,
+      "MAE": 0.9025476075356132,
+      "BIAS": -0.9025476075356132,
+      "CORRELATION": 0.88804130617228,
+      "R2": 0.7886173614681693,
+      "DIAGNOSTIC": "very low overlap; sparse temporal sampling is expected for FLDAS"
+    },
+    {
+      "Site": "NIT",
+      "Product": "FLDAS",
+      "Year": 2016,
+      "N": 5,
+      "N_CATEGORY": "LIMITED",
+      "EXPECTED_TEMPORAL_SAMPLING": "monthly/irregular",
+      "RMSE": 1.2438471482022904,
+      "MAE": 1.2223228511686814,
+      "BIAS": 0.7063358230856478,
+      "CORRELATION": 0.7415243311687005,
+      "R2": 0.5498583337151887,
+      "DIAGNOSTIC": "low overlap; sparse temporal sampling is expected for FLDAS"
+    },
+    {
+      "Site": "JIT",
+      "Product": "FLDAS",
+      "Year": 2016,
+      "N": 6,
+      "N_CATEGORY": "LIMITED",
+      "EXPECTED_TEMPORAL_SAMPLING": "monthly/irregular",
+      "RMSE": 1.8709926974314264,
+      "MAE": 1.3598814062562898,
+      "BIAS": 0.2309051867814563,
+      "CORRELATION": -0.1357847369647335,
+      "R2": 0.0184374947925818,
+      "DIAGNOSTIC": "low overlap; sparse temporal sampling is expected for FLDAS"
+    },
+    {
+      "Site": "BIT",
+      "Product": "FLDAS",
+      "Year": 2016,
+      "N": 7,
+      "N_CATEGORY": "LIMITED",
+      "EXPECTED_TEMPORAL_SAMPLING": "monthly/irregular",
+      "RMSE": 0.4961997604396646,
+      "MAE": 0.4405866466140348,
+      "BIAS": -0.0937305725500525,
+      "CORRELATION": 0.7684336750389856,
+      "R2": 0.5904903129339214,
+      "DIAGNOSTIC": "low overlap; sparse temporal sampling is expected for FLDAS"
+    },
+    {
+      "Site": "BKC",
+      "Product": "MOD16A2GF",
+      "Year": 2016,
+      "N": 8,
+      "N_CATEGORY": "LIMITED",
+      "EXPECTED_TEMPORAL_SAMPLING": "8-day",
+      "RMSE": 1.1862303230651527,
+      "MAE": 0.7645172643370164,
+      "BIAS": 0.762877876111245,
+      "CORRELATION": -0.175648658468546,
+      "R2": 0.0308524512217999,
+      "DIAGNOSTIC": "low overlap; MOD16A2GF has 8-day sampling, so N is naturally lower than daily products"
+    },
+    {
+      "Site": "BKC",
+      "Product": "PMLV2",
+      "Year": 2016,
+      "N": 8,
+      "N_CATEGORY": "LIMITED",
+      "EXPECTED_TEMPORAL_SAMPLING": "8-day",
+      "RMSE": 0.3792445864816519,
+      "MAE": 0.3167594280732045,
+      "BIAS": 0.2301449237069639,
+      "CORRELATION": 0.5729713204231941,
+      "R2": 0.3282961340274986,
+      "DIAGNOSTIC": "low overlap; PMLV2 has 8-day sampling, so N is naturally lower than daily products"
+    }
+  ],
+  "by_product": {
+    "FLDAS": 5,
+    "MOD16A2GF": 2,
+    "PMLV2": 2
+  },
+  "by_site": {
+    "BIT": 1,
+    "BKC": 3,
+    "JIT": 1,
+    "NIT": 1,
+    "SFT": 1,
+    "SIT": 2
+  },
+  "extraction_side_check": [
+    {
+      "Site": "SIT",
+      "Product": "MOD16A2GF",
+      "N": 2,
+      "extraction_rows": 2,
+      "extraction_valid_ET": null
+    },
+    {
+      "Site": "SIT",
+      "Product": "PMLV2",
+      "N": 2,
+      "extraction_rows": 2,
+      "extraction_valid_ET": null
+    },
+    {
+      "Site": "BKC",
+      "Product": "FLDAS",
+      "N": 3,
+      "extraction_rows": 3,
+      "extraction_valid_ET": null
+    },
+    {
+      "Site": "SFT",
+      "Product": "FLDAS",
+      "N": 3,
+      "extraction_rows": 3,
+      "extraction_valid_ET": null
+    },
+    {
+      "Site": "NIT",
+      "Product": "FLDAS",
+      "N": 5,
+      "extraction_rows": 5,
+      "extraction_valid_ET": null
+    },
+    {
+      "Site": "JIT",
+      "Product": "FLDAS",
+      "N": 6,
+      "extraction_rows": 6,
+      "extraction_valid_ET": null
+    },
+    {
+      "Site": "BIT",
+      "Product": "FLDAS",
+      "N": 7,
+      "extraction_rows": 7,
+      "extraction_valid_ET": null
+    },
+    {
+      "Site": "BKC",
+      "Product": "MOD16A2GF",
+      "N": 8,
+      "extraction_rows": 8,
+      "extraction_valid_ET": null
+    },
+    {
+      "Site": "BKC",
+      "Product": "PMLV2",
+      "N": 8,
+      "extraction_rows": 8,
+      "extraction_valid_ET": null
+    }
+  ]
+}
