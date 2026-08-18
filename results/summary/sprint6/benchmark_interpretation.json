@@ -1,0 +1,42 @@
+{
+  "minimum_n": 10,
+  "valid_combinations": 64,
+  "primary_combinations": 55,
+  "low_n_combinations": 9,
+  "sites": [
+    "BFT",
+    "BIT",
+    "BKC",
+    "DIT",
+    "JIT",
+    "KKM",
+    "KNP",
+    "NIT",
+    "SFT",
+    "SIT",
+    "UIT"
+  ],
+  "products": [
+    "ERA5-LAND",
+    "FLDAS",
+    "GLDAS",
+    "MERRA2",
+    "MOD16A2GF",
+    "PMLV2"
+  ],
+  "methodology": {
+    "primary_rule": "N >= 10",
+    "aggregation": "median and mean across qualifying site-product combinations",
+    "overall_rank": "equal-weight mean of ranks for RMSE, MAE, absolute bias, correlation and R2",
+    "lower_better": [
+      "RMSE",
+      "MAE",
+      "absolute bias"
+    ],
+    "higher_better": [
+      "correlation",
+      "R2"
+    ],
+    "low_n": "excluded from primary ranking but retained in source benchmark"
+  }
+}
