@@ -1,0 +1,58 @@
+{
+  "sprint": 7,
+  "minimum_n": 10,
+  "year_level": {
+    "records": 78,
+    "sites": [
+      "BFT",
+      "BIT",
+      "BKC",
+      "DIT",
+      "JIT",
+      "KKM",
+      "KNP",
+      "NIT",
+      "SFT",
+      "SIT",
+      "UIT"
+    ],
+    "products": [
+      "ERA5-LAND",
+      "FLDAS",
+      "GLDAS",
+      "MERRA2",
+      "MOD16A2GF",
+      "PMLV2",
+      "SSEBOP_V61"
+    ],
+    "years": [
+      2014,
+      2015,
+      2016,
+      2017,
+      2018
+    ]
+  },
+  "multi_year": {
+    "site_product_records": 69,
+    "primary_records": 60,
+    "reference_only_records": 9
+  },
+  "methodology": {
+    "year_level_qc": "N >= 10 is eligible for primary comparison",
+    "n_categories": {
+      "INSUFFICIENT": "N < 5",
+      "LIMITED": "5 <= N < 10",
+      "ADEQUATE": "10 <= N < 30",
+      "STRONG": "N >= 30"
+    },
+    "multi_year_metrics": "Calculated from pooled raw observation/product pairs when extraction.csv is available.",
+    "product_ranking": "Equal-weight mean rank of median RMSE, median MAE, median absolute bias, median correlation and median R2 across qualifying Site \u00d7 Product pooled records.",
+    "coverage_rule": "Products retain their actual available years; missing product years are not imputed."
+  },
+  "limitations": [
+    "The current GEE benchmark is the 2016 common-year layer.",
+    "SSEBop contributes its 2014\u20132018 year-level benchmark.",
+    "Therefore multi-year product coverage is asymmetric until additional GEE years are benchmarked."
+  ]
+}
