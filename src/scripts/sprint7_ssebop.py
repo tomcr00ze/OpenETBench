@@ -15,7 +15,7 @@ SSEBop GeoTIFFs
     -> multi-year benchmark
     -> common metrics
 
-The script deliberately does not overwrite the Sprint 4-6 GEE benchmark.
+The script deliberately does not overwrite the Sprint 4-6 GEE benchmark.\n\nSite-years with zero valid monthly overlap are recorded as QC outcomes\ninstead of terminating the complete multi-site run.
 
 Example
 -------
@@ -93,6 +93,17 @@ def _prepare_monthly_observations(
     )
 
 
+def _n_category(n: int) -> str:
+    """Classify benchmark sample size using the Sprint 5 QC convention."""
+    if n < 5:
+        return "INSUFFICIENT"
+    if n < 10:
+        return "LIMITED"
+    if n < 30:
+        return "ADEQUATE"
+    return "STRONG"
+
+
 def _benchmark_one_year(
     observed_monthly: pd.DataFrame,
     product_monthly: pd.DataFrame,
@@ -109,10 +120,29 @@ def _benchmark_one_year(
         subset=["Observed_ET", "Satellite_ET"]
     ).reset_index(drop=True)
 
+    n = len(merged)
+    n_category = _n_category(n)
+
+    # A site-year with no complete monthly reference/product overlap is a
+    # valid QC outcome, not a pipeline failure. Record it and let the
+    # remaining site-years continue.
     if merged.empty:
-        raise ValueError(
-            f"{site}/SSEBOP/{year}: no complete monthly ET pairs."
-        )
+        record = {
+            "Site": site,
+            "Product": PRODUCT_ID,
+            "Year": year,
+            "N": 0,
+            "N_CATEGORY": n_category,
+            "STATUS": "NO_VALID_OVERLAP",
+            "Start": None,
+            "End": None,
+            "RMSE": None,
+            "MAE": None,
+            "BIAS": None,
+            "CORRELATION": None,
+            "R2": None,
+        }
+        return merged, record
 
     metrics = calculate_metrics(
         merged.rename(
@@ -127,7 +157,9 @@ def _benchmark_one_year(
         "Site": site,
         "Product": PRODUCT_ID,
         "Year": year,
-        "N": len(merged),
+        "N": n,
+        "N_CATEGORY": n_category,
+        "STATUS": "BENCHMARKED",
         "Start": merged["Date"].min().strftime("%Y-%m-%d"),
         "End": merged["Date"].max().strftime("%Y-%m-%d"),
         "RMSE": metrics.rmse,
@@ -252,21 +284,31 @@ def run(
                 year=year,
             )
 
+            yearly_records.append(record)
+
+            if merged.empty:
+                print(
+                    f"  ⚠ {year}: N=0   "
+                    f"STATUS={record['STATUS']} "
+                    f"CATEGORY={record['N_CATEGORY']}"
+                )
+                continue
+
             merged["Site"] = site_id
             merged["Product"] = PRODUCT_ID
             merged["Year"] = year
             site_frames.append(merged)
-            yearly_records.append(record)
 
             print(
                 f"  ✓ {year}: N={record['N']:<2} "
                 f"RMSE={record['RMSE']:.3f} "
                 f"MAE={record['MAE']:.3f} "
-                f"R={record['CORRELATION']:.3f}"
+                f"R={record['CORRELATION']:.3f} "
+                f"[{record['N_CATEGORY']}]"
             )
 
         if not site_frames:
-            print("  ⚠ No BharatFlux site-years available.")
+            print("  ⚠ No valid monthly benchmark pairs for this site; site-year QC records retained.")
             continue
 
         site_all = pd.concat(
@@ -316,6 +358,16 @@ def run(
 
     yearly = pd.DataFrame(yearly_records)
     multi = pd.DataFrame(site_multi_records)
+
+    if not yearly.empty:
+        print("\nSSEBop year-level QC:")
+        print(
+            yearly.groupby(["STATUS", "N_CATEGORY"])
+            .size()
+            .rename("Combinations")
+            .reset_index()
+            .to_string(index=False)
+        )
 
     yearly_path = output_dir / "yearly_benchmark.csv"
     multi_path = output_dir / "multiyear_benchmark.csv"
