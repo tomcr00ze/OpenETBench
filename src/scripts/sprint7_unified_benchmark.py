@@ -21,10 +21,11 @@ files when available, rather than averaging yearly RMSE/MAE values.
 Current project structure:
     results/<SITE>/<PRODUCT>/extraction.csv
 
-For GEE products, the extraction files currently represent the 2016 common-year
-benchmark. SSEBop extraction files contain the 2014–2018 monthly observations.
-Therefore the script reports actual year coverage explicitly; it does not
-pretend that every product has the same multi-year coverage.
+For GEE products, the Sprint-7 GEE extension produces the available 2014–2018
+site-year benchmark layer. SSEBop extraction files contain the available
+2014–2018 monthly observations. Therefore the script reports actual year
+coverage explicitly; it does not pretend that every product has the same
+multi-year coverage.
 
 Usage:
     python src/scripts/sprint7_unified_benchmark.py --min-n 10
@@ -55,7 +56,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 DEFAULT_RESULTS_ROOT = PROJECT_ROOT / "results"
 DEFAULT_GEE_BENCHMARK = (
-    DEFAULT_RESULTS_ROOT / "summary" / "multisite_benchmark.csv"
+    DEFAULT_RESULTS_ROOT / "summary" / "sprint7_gee" / "yearly_benchmark.csv"
 )
 DEFAULT_SSEBOP_BENCHMARK = (
     DEFAULT_RESULTS_ROOT / "summary" / "sprint7_ssebop" / "yearly_benchmark.csv"
@@ -673,10 +674,10 @@ def main() -> int:
             ),
         },
         "limitations": [
-            "The current GEE benchmark is the 2016 common-year layer.",
-            "SSEBop contributes its 2014–2018 year-level benchmark.",
-            "Therefore multi-year product coverage is asymmetric until "
-            "additional GEE years are benchmarked.",
+            "The GEE layer uses the available BharatFlux site-years from 2014–2018.",
+            "SSEBop contributes its available 2014–2018 year-level benchmark.",
+            "Products retain asymmetric coverage where BharatFlux site-years "
+            "or product observations are unavailable.",
         ],
     }
 
