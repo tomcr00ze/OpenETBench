@@ -40,6 +40,15 @@ WORLD_SHP = (
     / "ne_110m_admin_0_countries.shp"
 )
 
+INDIA_MAP_DIR = (
+    Path(__file__).resolve().parents[2]
+    / "data"
+    / "maps"
+    / "india"
+)
+
+INDIA_SHP = INDIA_MAP_DIR / "in.shp"
+
 
 # ============================================================
 # Plot Flux Tower
@@ -88,7 +97,14 @@ def plot_site(
     # --------------------------------------------------------
 
     world = None
-    if WORLD_SHP.exists():
+    if INDIA_SHP.exists():
+        try:
+            world = gpd.read_file(INDIA_SHP)
+            if world.crs is not None and world.crs.to_string() != "EPSG:4326":
+                world = world.to_crs("EPSG:4326")
+        except Exception:
+            world = None
+    elif WORLD_SHP.exists():
         try:
             world = gpd.read_file(WORLD_SHP)
         except Exception:
@@ -120,7 +136,7 @@ def plot_site(
     if world is not None:
         world.plot(
             ax=ax,
-            color="whitesmoke",
+            color="white",
             edgecolor="gray",
             linewidth=0.5,
         )

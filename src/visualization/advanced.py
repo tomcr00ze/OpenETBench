@@ -6,8 +6,18 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import geopandas as gpd
 
 from extraction.sites import SITES
+
+
+DEFAULT_INDIA_SHP = (
+    Path(__file__).resolve().parents[2]
+    / "data"
+    / "maps"
+    / "india"
+    / "in.shp"
+)
 
 
 def _primary_keys(primary: pd.DataFrame) -> set[tuple[str, str]]:
@@ -141,29 +151,92 @@ def build_spatial_performance(multiyear: pd.DataFrame, min_n: int) -> pd.DataFra
     return x[["Site", "Product", "N", "RMSE", "MAE", "ABS_BIAS", "CORRELATION", "R2"]]
 
 
-def plot_spatial_performance(perf: pd.DataFrame, output_path: Path) -> Path:
-    """Plot site-wise RMSE as a compact India performance map."""
+def plot_spatial_performance(
+    perf: pd.DataFrame,
+    output_path: Path,
+    india_shp: Path | None = None,
+) -> Path:
+    """Plot site-wise RMSE on the supplied India administrative boundary.
+
+    The map is intentionally a site-based performance map, not a gridded
+    spatial ET validation.  The focal product is the product with the lowest
+    median multi-year RMSE among the primary benchmark records.
+    """
     if perf.empty:
         raise ValueError("No spatial-performance records available.")
     output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    india_shp = Path(india_shp) if india_shp is not None else DEFAULT_INDIA_SHP
+    if not india_shp.exists():
+        raise FileNotFoundError(
+            f"India shapefile not found: {india_shp}. "
+            """Place the supervisor-provided in.shp, in.shx, in.dbf and in.prj
+            files under data/maps/india/."""
+        )
+
+    india = gpd.read_file(india_shp)
+    if india.crs is not None and india.crs.to_string() != "EPSG:4326":
+        india = india.to_crs("EPSG:4326")
+
     # Use the best-ranked product as the focal map to avoid producing 7 maps.
-    product = (
-        perf.groupby("Product")["RMSE"].median().sort_values().index[0]
-    )
+    product = perf.groupby("Product")["RMSE"].median().sort_values().index[0]
     p = perf[perf.Product == product].copy()
-    fig, ax = plt.subplots(figsize=(8, 8))
+
+    fig, ax = plt.subplots(figsize=(9, 9))
+    india.plot(
+        ax=ax,
+        facecolor="white",
+        edgecolor="0.55",
+        linewidth=0.55,
+        zorder=1,
+    )
+
+    points = []
     for _, row in p.iterrows():
         site = SITES.get(str(row.Site).upper())
         if site is None:
             continue
-        ax.scatter(site.longitude, site.latitude, s=90, zorder=3)
-        ax.annotate(f"{site.id}\n{row.RMSE:.2f}", (site.longitude, site.latitude), xytext=(5, 5), textcoords="offset points", fontsize=8)
-    ax.set_xlim(67, 98)
-    ax.set_ylim(6, 37)
+        points.append((site.id, site.longitude, site.latitude, float(row.RMSE)))
+
+    if not points:
+        raise ValueError("No benchmark sites could be matched to the BharatFlux registry.")
+
+    sc = ax.scatter(
+        [x[1] for x in points],
+        [x[2] for x in points],
+        c=[x[3] for x in points],
+        cmap="viridis",
+        s=110,
+        edgecolor="black",
+        linewidth=0.6,
+        zorder=3,
+    )
+    cbar = fig.colorbar(sc, ax=ax, shrink=0.72, pad=0.02)
+    cbar.set_label("Multi-year RMSE")
+
+    for site_id, lon, lat, rmse in points:
+        ax.annotate(
+            f"{site_id}\n{rmse:.2f}",
+            (lon, lat),
+            xytext=(5, 5),
+            textcoords="offset points",
+            fontsize=8,
+            zorder=4,
+        )
+
+    # Use the boundary extent rather than a generic world-map crop.
+    minx, miny, maxx, maxy = india.total_bounds
+    ax.set_xlim(max(67, minx - 1), min(98, maxx + 1))
+    ax.set_ylim(max(6, miny - 1), min(38, maxy + 1))
     ax.set_xlabel("Longitude (°E)")
     ax.set_ylabel("Latitude (°N)")
-    ax.set_title(f"Spatial Performance Pattern — {product}\nSite-wise multi-year RMSE")
-    ax.grid(True, linestyle=":", alpha=0.5)
+    ax.set_title(
+        f"Spatial Performance Pattern — {product}\n"
+        "BharatFlux site-wise multi-year RMSE",
+        fontsize=14,
+        fontweight="bold",
+    )
+    ax.grid(True, linestyle=":", alpha=0.35)
     fig.tight_layout()
     fig.savefig(output_path, dpi=300, bbox_inches="tight")
     plt.close(fig)

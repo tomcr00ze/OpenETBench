@@ -41,6 +41,7 @@ from visualization.taylor import build_taylor_statistics, plot_taylor_diagram
 DEFAULT_RESULTS_ROOT = PROJECT_ROOT / "results"
 DEFAULT_INPUT = DEFAULT_RESULTS_ROOT / "summary" / "sprint7_unified"
 DEFAULT_OUTPUT = DEFAULT_RESULTS_ROOT / "summary" / "sprint8"
+DEFAULT_INDIA_SHP = PROJECT_ROOT / "data" / "maps" / "india" / "in.shp"
 
 
 def load_raw(results_root: Path) -> pd.DataFrame:
@@ -79,6 +80,7 @@ def main() -> int:
     parser.add_argument("--input", type=Path, default=DEFAULT_INPUT)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--min-n", type=int, default=10)
+    parser.add_argument("--india-shp", type=Path, default=DEFAULT_INDIA_SHP)
     args = parser.parse_args()
 
     if args.min_n < 1:
@@ -138,7 +140,11 @@ def main() -> int:
     spatial = build_spatial_performance(multiyear, args.min_n)
     spatial_csv = data_dir / "spatial_performance.csv"
     spatial.to_csv(spatial_csv, index=False)
-    spatial_png = plot_spatial_performance(spatial, fig_dir / "spatial_performance.png")
+    spatial_png = plot_spatial_performance(
+        spatial,
+        fig_dir / "spatial_performance.png",
+        india_shp=args.india_shp,
+    )
     print(f"✓ Spatial performance: {spatial_png}")
 
     report = {
