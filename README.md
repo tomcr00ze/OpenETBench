@@ -1,214 +1,322 @@
 # 🌍 OpenETBench
 
-> **A modular and reproducible framework for benchmarking Evapotranspiration (ET) products against Flux Tower observations.**
+> **A modular and reproducible framework for benchmarking
+> Evapotranspiration (ET) products against Flux Tower observations.**
 
-OpenETBench is an open-source Python framework for evaluating satellite, reanalysis, and data-driven Evapotranspiration (ET) products using in-situ Flux Tower observations as the reference.
+OpenETBench is an open-source Python framework for evaluating satellite,
+reanalysis, land-surface-model, and data-driven Evapotranspiration (ET)
+products against in-situ Flux Tower observations.
 
-The framework is built around a common pipeline: observations are preprocessed into a standardized representation, ET products are extracted or ingested through product-specific adapters, observations and products are temporally harmonized, statistical metrics are computed consistently, and standardized visualizations and benchmark artifacts are produced.
+The framework provides a common pipeline for:
 
-The current implementation has been developed and validated using **BharatFlux** observations and **Google Earth Engine (GEE)**-accessible ET products.
+-   preprocessing Flux Tower observations,
+-   extracting or ingesting ET products,
+-   temporal and spatial harmonization,
+-   standardized statistical benchmarking,
+-   quality control,
+-   multi-site and multi-year comparison,
+-   advanced evaluation,
+-   and research-ready visualizations and benchmark artifacts.
 
----
+The current validated benchmark uses **BharatFlux** observations and
+covers **2014--2018**, with product/site/year availability determined by
+the underlying observations and product coverage.
+
+------------------------------------------------------------------------
 
 ## Table of Contents
 
-- [Why OpenETBench?](#why-openetbench)
-- [What is being benchmarked?](#what-is-being-benchmarked)
-- [Key Features](#key-features)
-- [Architecture](#architecture)
-- [Benchmarking Workflow](#benchmarking-workflow)
-- [Supported ET Products](#supported-et-products)
-- [Reference Observations](#reference-observations)
-- [Temporal Harmonization](#temporal-harmonization)
-- [Benchmark Metrics](#benchmark-metrics)
-- [Visualization](#visualization)
-- [Output Structure](#output-structure)
-- [Project Structure](#project-structure)
-- [Development Status](#development-status)
-- [Extensibility](#extensibility)
-- [GEE and External Product Integration](#gee-and-external-product-integration)
-- [Roadmap](#roadmap)
-- [Design Principles](#design-principles)
-- [Installation](#installation)
-- [Current Usage](#current-usage)
-- [Research Context](#research-context)
-- [Author](#author)
+-   [Why OpenETBench?](#why-openetbench)
+-   [What is being benchmarked?](#what-is-being-benchmarked)
+-   [Final Benchmark Scope](#final-benchmark-scope)
+-   [Key Features](#key-features)
+-   [Architecture](#architecture)
+-   [Benchmarking Workflow](#benchmarking-workflow)
+-   [Supported ET Products](#supported-et-products)
+-   [Reference Observations](#reference-observations)
+-   [Temporal Harmonization](#temporal-harmonization)
+-   [Quality Control and Benchmark
+    Layers](#quality-control-and-benchmark-layers)
+-   [Benchmark Metrics](#benchmark-metrics)
+-   [Final Sprint 7 Results](#final-sprint-7-results)
+-   [Advanced Evaluation and
+    Visualizations](#advanced-evaluation-and-visualizations)
+-   [How to Interpret the Final
+    Figures](#how-to-interpret-the-final-figures)
+-   [Output Structure](#output-structure)
+-   [Project Structure](#project-structure)
+-   [Reproducibility](#reproducibility)
+-   [Installation](#installation)
+-   [Running the Pipeline](#running-the-pipeline)
+-   [Extensibility](#extensibility)
+-   [Research Interpretation and
+    Limitations](#research-interpretation-and-limitations)
+-   [Author](#author)
 
----
+------------------------------------------------------------------------
 
 # Why OpenETBench?
 
-Evapotranspiration is a fundamental component of the terrestrial water and energy cycles and is widely used in hydrology, agriculture, climate studies, drought monitoring, and land-surface modelling.
+Evapotranspiration is a fundamental component of the terrestrial water
+and energy cycles and is widely used in hydrology, agriculture, climate
+studies, drought monitoring, and land-surface modelling.
 
-A large number of ET products are available from different sources. These products can differ substantially in:
+ET products differ in:
 
-- spatial resolution,
-- temporal resolution,
-- input data,
-- physical assumptions,
-- estimation methodology,
-- spatial and temporal coverage,
-- units and aggregation conventions.
+-   spatial resolution,
+-   temporal resolution,
+-   input data,
+-   physical assumptions,
+-   modelling methodology,
+-   spatial and temporal coverage,
+-   units and aggregation conventions.
 
-Consequently, comparing ET products requires more than simply placing two time series side by side.
+Consequently, comparing ET products requires more than placing two time
+series side by side.
 
-OpenETBench provides a **consistent evaluation framework** in which different products can be processed through the same downstream benchmarking and visualization pipeline.
+OpenETBench provides a **common benchmarking layer** so that products
+from different methodological families can be evaluated against the same
+Flux Tower reference observations using consistent temporal alignment,
+metrics, quality-control rules, and visualization procedures.
 
----
+------------------------------------------------------------------------
 
 # What is being benchmarked?
 
-At its core, OpenETBench compares a Flux Tower reference ET series with one or more independently produced ET estimates.
+At its core, OpenETBench compares a Flux Tower reference ET series with
+independently produced ET estimates.
 
-```text
-                  Flux Tower ET
-                    Reference
-                       │
-                       ▼
-              ┌─────────────────┐
-              │   OpenETBench   │
-              └────────┬────────┘
-                       ▲
-                       │
-          ┌────────────┼────────────┐
-          │            │            │
-       Satellite   Reanalysis   Data-driven
-           ET           ET           ET
+``` text
+                         BharatFlux
+                         Reference ET
+                              │
+                              ▼
+                     ┌─────────────────┐
+                     │   OpenETBench   │
+                     └────────┬────────┘
+                              │
+             ┌────────────────┼────────────────┐
+             │                │                │
+             ▼                ▼                ▼
+        Satellite        Reanalysis      Data-driven /
+            ET                ET          LSM-based ET
 ```
 
-The current implementation uses **BharatFlux** observations as the reference. The evaluated products currently include satellite and reanalysis/data-driven products available through the common GEE workflow.
+The current benchmark uses **BharatFlux** as the reference and evaluates
+multiple ET products through a common downstream pipeline.
 
-The architecture is intentionally not tied to one ET product or one observation network.
+The architecture is intentionally not tied to one product or one Flux
+Tower network.
 
----
+------------------------------------------------------------------------
+
+# Final Benchmark Scope
+
+## Reference network
+
+The final benchmark uses **12 BharatFlux sites**:
+
+``` text
+BFT   BIT   BKC   DIT   JIT   KKM
+KNP   NIT   PVM   SFT   SIT   UIT
+```
+
+The available observation years are site-dependent and span
+**2014--2018**.
+
+Examples of the available observation periods include:
+
+  Site   Available years
+  ------ -----------------
+  BFT    2016--2018
+  BIT    2016--2017
+  BKC    2014--2016
+  DIT    2016--2017
+  JIT    2016--2018
+  KKM    2014--2016
+  KNP    2016--2018
+  NIT    2016--2018
+  PVM    2017
+  SFT    2014--2016
+  SIT    2016--2018
+  UIT    2016--2017
+
+The benchmark therefore **does not assume a rectangular site × year
+matrix**. Missing site-years are retained as genuine coverage
+limitations rather than artificially filled.
+
+## Final product set
+
+The completed benchmark contains:
+
+``` text
+ERA5-LAND
+FLDAS
+GLDAS
+MERRA2
+MOD16A2GF
+PMLV2
+SSEBOP_V61
+```
+
+The first six products are handled through the GEE-based workflow used
+by OpenETBench. **SSEBop V6.1** was integrated through the
+external-product ingestion pathway.
+
+------------------------------------------------------------------------
 
 # Key Features
 
 ## 🛰️ Multi-Product ET Evaluation
 
-A common product abstraction allows different ET products to be evaluated through the same extraction, harmonization, benchmarking, and visualization interfaces.
-
-Product-specific properties such as the GEE collection, ET band, scale factor, spatial resolution, temporal resolution, units, and aggregation strategy are represented as product metadata.
+A common product abstraction allows different ET products to pass
+through the same downstream harmonization and benchmarking framework.
 
 ## 🌱 Flux Tower Reference Data
 
-The preprocessing layer converts raw BharatFlux observations into standardized datasets suitable for benchmarking.
+The preprocessing layer converts raw BharatFlux observations into
+standardized benchmark-ready data, including:
 
-Current preprocessing capabilities include:
+-   loading and discovery,
+-   metadata preservation,
+-   column standardization,
+-   missing-value handling,
+-   numeric conversion,
+-   LE/ET conversion and preparation,
+-   validation,
+-   and processed-data persistence.
 
-- dataset discovery and loading,
-- metadata preservation,
-- column standardization,
-- missing-value handling,
-- numeric conversion,
-- LE/ET data handling,
-- validation,
-- processed-data persistence.
+## ☁️ GEE Integration
 
-Processed datasets are stored in machine-readable formats such as Parquet together with metadata JSON files.
+The GEE extraction layer provides a common interface for GEE-hosted ET
+products, including:
 
-## ☁️ Google Earth Engine Integration
+-   Earth Engine initialization,
+-   product registration,
+-   ImageCollection access,
+-   spatial reduction around tower sites,
+-   product-specific scale factors,
+-   temporal aggregation,
+-   date filtering,
+-   and standardized tabular export.
 
-The extraction layer provides a common interface for GEE-hosted ET products, including:
+## 📦 External Product Integration
 
-- Earth Engine initialization,
-- product registration,
-- ImageCollection access,
-- spatial reduction around Flux Tower sites,
-- product-specific scale factors,
-- temporal aggregation,
-- date filtering,
-- conversion to standardized tabular data.
+SSEBop V6.1 demonstrates that an ET product distributed outside the GEE
+workflow can still be converted into the same benchmark representation.
 
-The downstream benchmark code therefore does not need a separate implementation for every GEE collection.
+The downstream benchmark therefore operates on a standardized
+representation rather than depending on how the original product was
+distributed.
 
 ## ⏱️ Temporal Harmonization
 
-Products are available at different temporal resolutions. OpenETBench performs product-aware temporal processing before comparison.
+OpenETBench handles products with different native temporal resolutions:
 
-```text
-8-day product   ───────────────► 8-day series
-Daily product   ───────────────► Daily series
-Monthly product ───────────────► Monthly series
-Hourly product  ─► aggregation ─► Daily series
+``` text
+8-day product    ───────────────► benchmark-ready series
+Daily product    ───────────────► benchmark-ready series
+Monthly product  ───────────────► benchmark-ready series
+Hourly product   ─► aggregation ─► benchmark-ready series
 ```
 
-The current implementation includes higher-frequency handling for **MERRA-2**, where the source data are aggregated before comparison.
+MERRA2, for example, requires aggregation of higher-frequency source
+data before comparison.
 
-## 📊 Standard Benchmark Metrics
+## 📊 Standardized Metrics
 
-The current benchmark layer calculates:
+The benchmark calculates:
 
-- RMSE
-- MAE
-- Bias
-- Pearson Correlation
-- R²
+-   RMSE
+-   MAE
+-   Bias / absolute bias
+-   Pearson correlation
+-   R²
 
-## 📈 Standardized Visual Diagnostics
+## 🔍 Quality Control
 
-For each successful site/product benchmark, the visualization layer produces:
+Benchmark records are not treated equally when temporal overlap is weak.
 
-- observed-vs-product scatter plots,
-- observed-vs-product time-series plots,
-- Flux Tower site-location maps.
+The multi-year layer classifies records using the available sample size
+and assigns statuses such as:
 
-## 💾 Reproducible Result Artifacts
+``` text
+STRONG
+ADEQUATE
+LIMITED
+INSUFFICIENT
 
-Each benchmark stores both numerical and visual outputs together, making a site/product evaluation self-contained and easy to inspect or archive.
+PRIMARY
+REFERENCE_ONLY
+```
 
----
+The primary final benchmark uses the configured threshold:
+
+``` text
+N ≥ 10
+```
+
+## 📈 Advanced Evaluation
+
+The completed Sprint 8 layer adds:
+
+-   Taylor diagram,
+-   seasonal-cycle comparison,
+-   interannual variability,
+-   site-wise spatial performance.
+
+------------------------------------------------------------------------
 
 # Architecture
 
-OpenETBench follows a modular architecture in which each layer has a focused responsibility.
-
-```text
+``` text
 ┌─────────────────────────────┐
 │        Preprocessing        │
-│   Flux Tower observations   │
+│   BharatFlux observations   │
 └──────────────┬──────────────┘
                │
                ▼
 ┌─────────────────────────────┐
-│         Extraction          │
-│  GEE products / ingestion   │
+│     Extraction / Ingestion  │
+│  GEE + external ET products │
 └──────────────┬──────────────┘
                │
                ▼
 ┌─────────────────────────────┐
-│       Harmonization         │
-│ Temporal / spatial alignment│
+│         Harmonization        │
+│ Temporal / spatial alignment │
 └──────────────┬──────────────┘
                │
                ▼
 ┌─────────────────────────────┐
-│        Benchmarking         │
-│   Metrics and evaluation    │
+│        Benchmarking          │
+│ Metrics + QC + comparison   │
 └──────────────┬──────────────┘
                │
                ▼
 ┌─────────────────────────────┐
-│       Visualization         │
-│  Scatter / Time Series / Map│
+│       Advanced Evaluation   │
+│ Taylor / seasonal / annual  │
+│ spatial performance         │
 └──────────────┬──────────────┘
                │
                ▼
 ┌─────────────────────────────┐
 │           Export            │
-│      CSV / JSON / PNG       │
+│ CSV / JSON / PNG / README   │
 └─────────────────────────────┘
 ```
 
-This separation allows product-specific extraction logic to remain independent from common benchmarking logic.
+This separation keeps product-specific extraction logic independent from
+the common evaluation logic.
 
----
+------------------------------------------------------------------------
 
 # Benchmarking Workflow
 
-The current end-to-end workflow is:
+The completed project is organized into the following conceptual stages:
 
-```text
+``` text
 Raw BharatFlux Data
         │
         ▼
@@ -217,229 +325,522 @@ Observation Preprocessing
         ▼
 Processed BharatFlux Dataset
         │
-        ├─────────────────────────┐
-        │                         │
-        ▼                         ▼
-Reference ET                ET Product Registry
-                                  │
-                                  ▼
-                           GEE Product Extraction
-                                  │
-                                  ▼
-                           Temporal Aggregation
-                                  │
-                                  ▼
-                           Temporal Harmonization
-                                  │
-                ┌─────────────────┴─────────────────┐
-                │                                   │
-                ▼                                   ▼
-          Observed ET                         Product ET
-                │                                   │
-                └─────────────────┬─────────────────┘
-                                  │
-                                  ▼
-                           Benchmark Metrics
-                                  │
-                                  ▼
-                         Visual Diagnostics
-                                  │
-                                  ▼
-                           Result Artifacts
+        ├─────────────────────────────┐
+        │                             │
+        ▼                             ▼
+Reference ET                    ET Product Registry
+                                      │
+                           ┌──────────┴──────────┐
+                           │                     │
+                           ▼                     ▼
+                       GEE Products       External Products
+                           │                     │
+                           └──────────┬──────────┘
+                                      ▼
+                              Temporal Harmonization
+                                      │
+                                      ▼
+                              Site × Product × Year
+                                      │
+                                      ▼
+                                Quality Control
+                                      │
+                                      ▼
+                         Multi-Year Site × Product
+                                      │
+                                      ▼
+                          Product-Level Comparison
+                                      │
+                                      ▼
+                            Advanced Evaluation
+                                      │
+                                      ▼
+                            Research-Ready Outputs
 ```
 
-The intended result is a standardized comparison for each **site × product × time period** combination.
-
----
+------------------------------------------------------------------------
 
 # Supported ET Products
 
-The following products are currently validated through the GEE extraction workflow.
+  Product          Family / role                       Native temporal scale used Integration
+  ---------------- --------------------------------- ---------------------------- --------------------
+  **ERA5-LAND**    Reanalysis / land surface                                Daily GEE
+  **FLDAS**        Land-surface / reanalysis                              Monthly GEE
+  **GLDAS**        Land-surface model / reanalysis                          Daily GEE
+  **MERRA2**       Reanalysis                                      Hourly → Daily GEE
+  **MOD16A2GF**    Satellite ET                                             8-day GEE
+  **PMLV2**        Data-driven / satellite-based                            8-day GEE
+  **SSEBOP_V61**   Satellite ET                                           Monthly External ingestion
 
-| Product | Category | Temporal Resolution | Status |
-|---|---|---:|---|
-| **MOD16A2GF** | Satellite | 8-day | ✅ Validated |
-| **ERA5-Land** | Reanalysis | Daily | ✅ Validated |
-| **FLDAS** | Land-surface / reanalysis | Monthly | ✅ Validated |
-| **GLDAS** | Land-surface / reanalysis | Daily | ✅ Validated |
-| **MERRA-2** | Reanalysis | Hourly → Daily | ✅ Validated |
-| **PML-V2** | Data-driven / satellite-based | 8-day | ✅ Validated |
+The benchmark intentionally does not require every product to have
+identical temporal or spatial coverage.
 
-### Product abstraction
-
-Products are represented through a common `ETProduct` abstraction containing metadata such as:
-
-```text
-ETProduct
-├── name
-├── collection
-├── band
-├── scale_factor
-├── spatial_resolution
-├── temporal_resolution
-├── units
-├── provider
-├── coverage
-└── aggregation information
-```
-
-The metadata-driven design keeps product-specific behavior separate from the shared benchmarking pipeline.
-
----
+------------------------------------------------------------------------
 
 # Reference Observations
 
 The current reference dataset is **BharatFlux**.
 
-Processed observations use a standardized tabular representation containing fields such as:
+Benchmark-ready observations contain standardized fields such as:
 
-```text
+``` text
+Date
 DoY
 LE
 ET
 ```
 
-For benchmarking, the ET observation series is aligned with the corresponding product time series using common dates before statistical evaluation.
+For each benchmark comparison, observed and product ET are aligned using
+their common temporal support.
 
-The preprocessing layer also supports the associated data-cleaning and LE/ET preparation required to turn raw tower files into benchmark-ready data.
+This is particularly important because the evaluated products operate at
+different native temporal resolutions.
 
----
+------------------------------------------------------------------------
 
 # Temporal Harmonization
 
-ET products do not share a common temporal resolution. OpenETBench therefore treats temporal resolution as part of the product definition rather than assuming that all datasets are daily.
+ET products do not share a common temporal resolution. OpenETBench
+therefore treats temporal resolution as part of the product definition.
 
 The harmonization layer provides:
 
-- temporal alignment,
-- common-date filtering,
-- Day-of-Year handling,
-- product-specific temporal aggregation,
-- observation/product merging.
+-   temporal alignment,
+-   common-date filtering,
+-   Day-of-Year handling,
+-   product-specific aggregation,
+-   observation/product merging,
+-   and consistent benchmark-ready representations.
 
-For example, the current products include 8-day, daily, monthly, and hourly source data. MERRA-2 is handled by aggregating its higher-frequency data before the final comparison.
+The resulting records contain fields such as:
 
-The output is a common benchmark dataframe containing fields such as:
-
-```text
+``` text
 Date
 DoY
-Observed_LE
 Observed_ET
 Satellite_ET
 ```
 
-where the final product column represents the evaluated ET product.
+The final benchmark is therefore based on **matched temporal
+observations**, rather than assuming that every product has values for
+every observation timestamp.
 
----
+------------------------------------------------------------------------
+
+# Quality Control and Benchmark Layers
+
+A key design decision in OpenETBench is the separation between
+**year-specific benchmarking** and **multi-year benchmarking**.
+
+## Year-specific layer
+
+Each available:
+
+``` text
+Product × Site × Year
+```
+
+combination is evaluated independently.
+
+This preserves information about:
+
+-   year-to-year changes,
+-   site-specific data availability,
+-   temporal overlap,
+-   and product-specific coverage.
+
+## Multi-year layer
+
+The available years are then combined at the:
+
+``` text
+Product × Site
+```
+
+level.
+
+The multi-year layer records:
+
+-   available years,
+-   total valid paired observations,
+-   RMSE,
+-   MAE,
+-   absolute bias,
+-   correlation,
+-   R²,
+-   sample-size category,
+-   and benchmark status.
+
+This two-layer structure avoids hiding poor or missing temporal support
+behind a single aggregate score.
+
+------------------------------------------------------------------------
 
 # Benchmark Metrics
 
-OpenETBench currently calculates five core metrics.
+  -----------------------------------------------------------------------
+  Metric                              Interpretation
+  ----------------------------------- -----------------------------------
+  **RMSE**                            Overall magnitude of error, with
+                                      larger errors receiving greater
+                                      weight
 
-| Metric | Purpose |
-|---|---|
-| **RMSE** | Measures the magnitude of prediction error, giving larger errors greater weight. |
-| **MAE** | Measures average absolute error. |
-| **Bias** | Quantifies systematic overestimation or underestimation. |
-| **Pearson Correlation** | Measures linear association between observed and product ET. |
-| **R²** | Measures the variance explained by the fitted relationship. |
+  **MAE**                             Average absolute magnitude of error
 
-The metrics are stored in `benchmark.json` for every benchmark.
+  **Bias**                            Direction and magnitude of
+                                      systematic over/underestimation
 
-Example:
+  **Pearson correlation**             Strength of linear temporal
+                                      association
 
-```json
-{
-    "rmse": 13.17177895120969,
-    "mae": 8.924795656628286,
-    "bias": 7.6163704169232735,
-    "correlation": 0.7880338078657112,
-    "r2": 0.6209972823393326
-}
+  **R²**                              Fraction of variance explained by
+                                      the fitted relationship
+  -----------------------------------------------------------------------
+
+These metrics should be interpreted together. A product can have good
+correlation while still having substantial systematic bias, or low error
+while failing to reproduce temporal variability.
+
+------------------------------------------------------------------------
+
+# Final Sprint 7 Results
+
+The completed unified benchmark produced:
+
+``` text
+Year-level benchmark records: 193
+Raw extraction pairs:         27,255
 ```
 
----
+The final product-level multi-year comparison produced the following
+overall ordering under the implemented ranking procedure:
 
-# Visualization
+  ----------------------------------------------------------------------------------
+          Rank Product           Median RMSE   Median MAE        Median    Mean rank
+                                                            correlation 
+  ------------ ---------------- ------------ ------------ ------------- ------------
+             1 **ERA5-LAND**           1.179        0.937         0.644          2.0
 
-OpenETBench provides three standardized visual diagnostics.
+             2 **FLDAS**               1.373        1.139         0.664          2.8
 
-## Scatter Plot
+             2 **GLDAS**               1.453        1.095         0.655          2.8
 
-The scatter plot compares observed ET against the evaluated product ET and provides a direct view of agreement, dispersion, and systematic differences.
+             4 **PMLV2**               1.194        0.884         0.552          3.4
 
-**Output:** `scatter.png`
+             5 **MERRA2**              1.560        1.163         0.627          4.8
 
-## Time-Series Plot
+             6 **MOD16A2GF**          11.760        9.231         0.631          5.2
 
-The time-series plot compares observed and product ET over the common temporal period. It is useful for assessing temporal tracking, seasonal behavior, offsets, and variability.
+             7 **SSEBOP_V61**         27.306       23.081         0.453          7.0
+  ----------------------------------------------------------------------------------
 
-**Output:** `timeseries.png`
+### Important interpretation
 
-## Benchmark Site Map
+This table is a **benchmark result for the current BharatFlux
+experiment**, not a universal ranking of ET products.
 
-The map displays the geographic location of the Flux Tower used in the benchmark.
+The products have different:
 
-**Output:** `map.png`
+-   site coverage,
+-   year coverage,
+-   temporal resolution,
+-   valid-pair counts,
+-   and data availability.
 
-> **Note:** The current `map.png` is a **site-location map**, not a spatial ET field or product-specific raster map. Therefore, maps for different products evaluated at the same Flux Tower site are expected to look the same. Product-specific differences are represented by the scatter plot, time series, and benchmark statistics.
+In particular, SSEBop has fewer eligible site combinations than the GEE
+products. Therefore, its position should be interpreted together with
+the coverage and QC tables rather than as an unconditional statement
+that it is globally inferior.
 
----
+Similarly, the large MOD16A2GF and SSEBop error values indicate weaker
+agreement **under the present benchmark configuration**, but should not
+by themselves be interpreted as a general statement about product
+quality outside this experiment.
+
+------------------------------------------------------------------------
+
+# Advanced Evaluation and Visualizations
+
+Sprint 8 generates four research-facing figures under:
+
+``` text
+results/summary/sprint8/figures/
+```
+
+The figures are embedded below so that the benchmark can be inspected
+directly from the repository README.
+
+------------------------------------------------------------------------
+
+## 1. Taylor Diagram
+
+![Taylor diagram](results/summary/sprint8/figures/taylor_diagram.png)
+
+### What it shows
+
+The Taylor diagram summarizes product-level multi-year performance
+using:
+
+-   correlation with BharatFlux,
+-   normalized standard deviation,
+-   and centered RMSD contours.
+
+The reference point represents the ideal case:
+
+``` text
+Correlation = 1
+Normalized standard deviation = 1
+```
+
+A product closer to this reference point has a combination of:
+
+-   stronger temporal agreement,
+-   more similar variability,
+-   and lower centered error.
+
+### How to interpret it
+
+-   **Higher correlation** → better temporal association.
+-   **σ / σref ≈ 1** → product variability resembles the observations.
+-   **Closer to the reference point** → better overall agreement.
+-   **Lower centered RMSD** → smaller pattern/variability mismatch after
+    removing mean bias.
+
+The diagram uses **site-level statistics summarized by product
+medians**, so it should be interpreted as a product-level multi-year
+summary rather than a visualization of every individual site.
+
+------------------------------------------------------------------------
+
+## 2. Seasonal Cycle
+
+![Seasonal cycle](results/summary/sprint8/figures/seasonal_cycle.png)
+
+### What it shows
+
+The seasonal-cycle figure compares the typical month-by-month behavior
+of the products against the BharatFlux reference.
+
+The values are standardized as **z-scores** within each Site × Product
+series before pooling.
+
+Therefore, the figure emphasizes:
+
+-   timing of seasonal peaks,
+-   timing of seasonal minima,
+-   amplitude relative to each series' own variability,
+-   and overall seasonal shape.
+
+### Why standardization is used
+
+The products have different native temporal resolutions and sampling
+characteristics. Directly pooling their raw magnitudes would make the
+visualization difficult to interpret.
+
+Standardization allows the figure to answer:
+
+> **Does the product reproduce the seasonal pattern observed by the Flux
+> Towers?**
+
+rather than:
+
+> **Which product has the largest raw ET value?**
+
+A curve that follows the observed seasonal shape closely indicates
+better reproduction of seasonal timing and variability.
+
+------------------------------------------------------------------------
+
+## 3. Interannual Variability
+
+![Interannual
+variability](results/summary/sprint8/figures/interannual_variability.png)
+
+### What it shows
+
+The interannual figure evaluates how products reproduce **year-to-year
+departures from their own mean behavior**.
+
+Annual ET values are converted to standardized anomalies:
+
+``` text
+annual anomaly = (annual value − multi-year mean) / multi-year standard deviation
+```
+
+This allows products with different absolute magnitudes to be compared
+in terms of their ability to capture:
+
+-   relatively high-ET years,
+-   relatively low-ET years,
+-   and the direction of year-to-year changes.
+
+### How to interpret it
+
+The important question is whether product anomalies move in the same
+direction as the observed anomalies.
+
+For example:
+
+``` text
+Observed:   low → high → low
+Product:    low → high → low
+```
+
+indicates that the product captures the interannual pattern well, even
+if its absolute ET magnitude differs from the observations.
+
+Products with only one available year cannot provide meaningful
+interannual variability and are therefore excluded from this diagnostic.
+
+------------------------------------------------------------------------
+
+## 4. Spatial Performance Pattern
+
+![Spatial
+performance](results/summary/sprint8/figures/spatial_performance.png)
+
+### What it shows
+
+The spatial figure maps the **BharatFlux tower locations** and colors
+each site according to its multi-year RMSE for the focal product.
+
+The map uses the India administrative boundary supplied for the project.
+
+### Important clarification
+
+This is a:
+
+> **site-wise performance map**
+
+It is **not** a gridded spatial validation of ET fields.
+
+Each point represents a Flux Tower location, and the color represents
+the benchmark error at that site.
+
+Therefore, the figure answers:
+
+> **Where does the evaluated product perform relatively better or worse
+> across the BharatFlux sites?**
+
+It does not answer:
+
+> **Where across India does the ET product reproduce the spatial ET
+> field correctly?**
+
+That second question would require gridded reference observations or an
+independent spatial validation framework, which is outside the current
+site-based OpenETBench design.
+
+------------------------------------------------------------------------
+
+# Reading the Four Figures Together
+
+The four Sprint 8 diagnostics answer different questions:
+
+  -----------------------------------------------------------------------
+  Diagnostic                          Main question
+  ----------------------------------- -----------------------------------
+  **Taylor diagram**                  Does the product reproduce
+                                      variability and temporal
+                                      association?
+
+  **Seasonal cycle**                  Does it reproduce the seasonal
+                                      pattern?
+
+  **Interannual variability**         Does it reproduce year-to-year
+                                      departures?
+
+  **Spatial performance**             Does performance vary
+                                      systematically across tower
+                                      locations?
+  -----------------------------------------------------------------------
+
+Together they provide a more informative evaluation than a single RMSE
+or correlation value.
+
+``` text
+                    Overall ET Evaluation
+                           │
+       ┌───────────────────┼───────────────────┐
+       │                   │                   │
+       ▼                   ▼                   ▼
+   Temporal            Variability          Spatial
+   agreement           structure           variation
+       │                   │                   │
+       ├── Taylor          ├── Seasonal       └── Site RMSE
+       └── Correlation     └── Interannual
+```
+
+------------------------------------------------------------------------
 
 # Output Structure
 
-Benchmark artifacts are organized by site and product:
+The final project produces both site/product benchmark artifacts and
+consolidated Sprint 7--8 summaries.
 
-```text
+``` text
 results/
-└── BFT/
-    ├── MOD16A2GF/
-    │   ├── extraction.csv
-    │   ├── benchmark.json
-    │   ├── scatter.png
-    │   ├── timeseries.png
-    │   └── map.png
+│
+├── <SITE>/
+│   └── <PRODUCT>/
+│       ├── extraction.csv
+│       ├── benchmark.json
+│       ├── scatter.png
+│       ├── timeseries.png
+│       └── map.png
+│
+└── summary/
+    ├── sprint7_ssebop/
+    │   ├── inventory.csv
+    │   ├── yearly_benchmark.csv
+    │   └── multiyear_benchmark.csv
     │
-    ├── ERA5-LAND/
-    │   ├── extraction.csv
-    │   ├── benchmark.json
-    │   ├── scatter.png
-    │   ├── timeseries.png
-    │   └── map.png
+    ├── sprint7_unified/
+    │   ├── product_site_year.csv
+    │   ├── product_site_multiyear.csv
+    │   ├── product_multiyear_summary.csv
+    │   ├── multiyear_qc.csv
+    │   ├── coverage_matrix.csv
+    │   └── unified_benchmark.json
     │
-    ├── FLDAS/
-    ├── GLDAS/
-    ├── MERRA2/
-    └── PMLV2/
+    ├── sprint8/
+    │   ├── data/
+    │   │   ├── taylor_statistics.csv
+    │   │   ├── seasonal_cycle.csv
+    │   │   ├── interannual_variability.csv
+    │   │   └── spatial_performance.csv
+    │   │
+    │   ├── figures/
+    │   │   ├── taylor_diagram.png
+    │   │   ├── seasonal_cycle.png
+    │   │   ├── interannual_variability.png
+    │   │   └── spatial_performance.png
+    │   │
+    │   └── sprint8_report.json
+    │
+    └── final/
+        ├── benchmark_tables/
+        ├── README_FINAL.md
+        └── reproducibility_manifest.json
 ```
 
-### `extraction.csv`
-
-Contains the aligned observation/product data used for benchmarking.
-
-### `benchmark.json`
-
-Contains the numerical benchmark metrics.
-
-### PNG files
-
-Contain the standardized visual diagnostics for the benchmark.
-
-Keeping these artifacts together provides a reproducible record of each site/product evaluation.
-
----
+------------------------------------------------------------------------
 
 # Project Structure
 
-```text
+``` text
 OpenETBench/
 │
 ├── data/
 │   ├── raw/
 │   ├── intermediate/
-│   └── processed/
-│       └── bharatflux/
+│   ├── processed/
+│   └── maps/
+│       └── india/
+│           ├── in.shp
+│           ├── in.shx
+│           ├── in.dbf
+│           └── in.prj
 │
 ├── docs/
 ├── figures/
@@ -448,58 +849,17 @@ OpenETBench/
 │   └── workflows/
 │
 ├── results/
-│   └── <SITE>/<PRODUCT>/
+│   └── summary/
 │
 ├── src/
 │   ├── preprocessing/
-│   │   ├── loader.py
-│   │   ├── cleaner.py
-│   │   ├── converter.py
-│   │   ├── exporter.py
-│   │   ├── merger.py
-│   │   ├── metadata.py
-│   │   └── qc.py
-│   │
 │   ├── extraction/
-│   │   ├── gee.py
-│   │   ├── sites.py
-│   │   ├── products.py
-│   │   ├── extractor.py
-│   │   └── storage.py
-│   │
 │   ├── harmonization/
-│   │   ├── temporal.py
-│   │   ├── spatial.py
-│   │   ├── standardize.py
-│   │   └── merge.py
-│   │
 │   ├── benchmarking/
-│   │   ├── metrics.py
-│   │   ├── statistics.py
-│   │   ├── comparison.py
-│   │   ├── uncertainty.py
-│   │   └── ilamb.py
-│   │
 │   ├── visualization/
-│   │   ├── scatter.py
-│   │   ├── timeseries.py
-│   │   ├── maps.py
-│   │   ├── heatmap.py
-│   │   └── taylor.py
-│   │
-│   ├── utils/
-│   │   ├── config.py
-│   │   ├── constants.py
-│   │   └── io.py
-│   │
 │   └── scripts/
-│       └── sprint3_visualization.py
 │
 ├── tests/
-│   ├── test_loader.py
-│   ├── test_converter.py
-│   └── test_metrics.py
-│
 ├── CITATION.cff
 ├── CONTRIBUTING.md
 ├── environment.yml
@@ -509,293 +869,263 @@ OpenETBench/
 └── README.md
 ```
 
----
+------------------------------------------------------------------------
 
-# Notebook Organization
+# Reproducibility
 
-OpenETBench separates exploratory experimentation from systematic workflow notebooks.
+The completed pipeline keeps the major benchmark stages explicit and
+scriptable.
 
-### `notebooks/experiments/`
+The principal workflow is:
 
-Used for exploratory analysis, prototyping, debugging, and investigation.
+``` text
+Sprint 5
+  ↓
+Quality control / low-N diagnostics
 
-### `notebooks/workflows/`
+Sprint 6
+  ↓
+Benchmark interpretation
 
-Used for systematic demonstrations of the reusable OpenETBench pipeline. These notebooks are intended to call the common modules under `src/` rather than duplicating the core implementation.
+Sprint 7
+  ↓
+External SSEBop integration
+  ↓
+Multi-year GEE extension
+  ↓
+Unified Product × Site × Year benchmark
+  ↓
+Multi-year QC
+  ↓
+Product-level multi-year comparison
 
-This separation keeps exploratory work flexible without allowing experimental notebook code to become the canonical pipeline implementation.
+Sprint 8
+  ↓
+Taylor diagram
+  ↓
+Seasonal cycle
+  ↓
+Interannual variability
+  ↓
+Spatial performance
 
----
-
-# Development Status
-
-The current implementation has been validated through three major stages.
-
-### Core single-product benchmark
-
-A real BharatFlux dataset was successfully evaluated against MOD16A2GF, including:
-
-- observation loading,
-- GEE extraction,
-- temporal alignment,
-- benchmark dataframe creation,
-- metric calculation,
-- CSV/JSON export.
-
-### Multi-product validation
-
-The common pipeline successfully evaluated all six current GEE-backed products:
-
-```text
-MOD16A2GF   ✓
-ERA5-Land   ✓
-FLDAS       ✓
-GLDAS       ✓
-MERRA-2     ✓
-PML-V2      ✓
+Finalization
+  ↓
+Benchmark tables
+  ↓
+README / documentation
+  ↓
+Reproducibility manifest
 ```
 
-### Visualization validation
+The final repository also contains a reproducibility manifest and
+consolidated benchmark tables generated during finalization.
 
-For all six products, the visualization pipeline successfully generated:
-
-```text
-scatter.png
- timeseries.png
- map.png
-```
-
-alongside the corresponding extraction and benchmark outputs.
-
-The current validated scope therefore represents a working **single-site, multi-product GEE benchmarking pipeline**.
-
----
-
-# Extensibility
-
-The architecture is designed so that adding a new product should primarily require defining how that product is accessed and transformed into the common ET representation.
-
-```text
-New Product
-     │
-     ▼
-Product Metadata / Adapter
-     │
-     ▼
-Common Extraction / Ingestion
-     │
-     ▼
-Common Harmonization
-     │
-     ▼
-Common Benchmarking
-     │
-     ▼
-Common Visualization
-     │
-     ▼
-Standardized Results
-```
-
-The same philosophy can be applied to additional Flux Tower networks through observation-specific preprocessing adapters.
-
----
-
-# GEE and External Product Integration
-
-OpenETBench distinguishes between products that can be accessed directly through Google Earth Engine and products requiring external ingestion.
-
-## Current GEE-backed scope
-
-```text
-MOD16A2GF
-ERA5-Land
-FLDAS
-GLDAS
-MERRA-2
-PML-V2
-```
-
-## External products
-
-Products currently tracked for future external integration include:
-
-```text
-GLEAM
-SSEBop
-BESS
-GLASS ET
-FLUXCOM-X / X-BASE ET
-ALEXI
-DisALEXI
-MuSyQ ET
-SMAP-PM ET
-```
-
-The intended external-data architecture is:
-
-```text
-External Product
-      │
-      ▼
-Ingestion / Conversion
-      │
-      ▼
-Standardized ET Series
-      │
-      ▼
-Harmonization
-      │
-      ▼
-Benchmarking
-      │
-      ▼
-Visualization
-```
-
-This keeps the downstream evaluation process independent of the original data-distribution mechanism.
-
----
-
-# Roadmap
-
-## Multi-Site Evaluation
-
-Extend the validated workflow from the current single-site benchmark to additional BharatFlux sites and years.
-
-```text
-Single Site
-     │
-     ▼
-Multiple Sites
-     │
-     ▼
-Multiple Years
-     │
-     ▼
-Product × Site × Time Evaluation
-```
-
-## Expanded Product Coverage
-
-Integrate additional ET products, particularly products that are not directly accessible through the current GEE workflow.
-
-## Advanced Evaluation
-
-Future benchmarking capabilities may include:
-
-- spatial pattern evaluation,
-- seasonal-cycle evaluation,
-- interannual variability,
-- distribution comparison,
-- uncertainty analysis,
-- Taylor diagrams,
-- heatmaps,
-- monthly climatology,
-- consolidated product ranking,
-- ILAMB-style evaluation.
-
-## Broader Observation Networks
-
-Extend the reference-data layer to additional Flux Tower networks, including FLUXNET-compatible observations.
-
----
-
-# Design Principles
-
-### Common interfaces
-
-Different ET products should be evaluated through consistent interfaces wherever possible.
-
-### Product-specific metadata
-
-Product-specific behavior should be expressed through product metadata or adapters rather than duplicated throughout the pipeline.
-
-### Separation of concerns
-
-Preprocessing, extraction, harmonization, benchmarking, visualization, and export remain separate responsibilities.
-
-### Reproducibility
-
-Each benchmark should retain the aligned data, numerical metrics, and visual diagnostics required to inspect the evaluation.
-
-### Extensibility
-
-New products, sites, observation networks, and evaluation methods should be addable without redesigning the complete framework.
-
-### Clean experimentation
-
-Exploratory notebooks remain separate from the reusable implementation and systematic workflow notebooks.
-
----
+------------------------------------------------------------------------
 
 # Installation
 
-Clone the repository and install the project dependencies.
+Clone the repository and install the project dependencies:
 
-```bash
+``` bash
 git clone <repository-url>
 cd OpenETBench
 pip install -r requirements.txt
 ```
 
-Alternatively, use the provided Conda environment:
+Alternatively:
 
-```bash
+``` bash
 conda env create -f environment.yml
 ```
 
-The GEE extraction workflow additionally requires a configured Google Earth Engine account/environment.
+The GEE extraction workflow additionally requires a configured Google
+Earth Engine environment.
 
----
+------------------------------------------------------------------------
 
-# Current Usage
+# Running the Pipeline
 
-The current validated visualization entry point can be executed from the project root.
+The exact scripts and arguments may vary with the configured data
+inventory, but the completed workflow is organized around the following
+entry points.
 
-For a single product:
+### Unified Sprint 7 benchmark
 
-```bash
-python src/scripts/sprint3_visualization.py --site BFT --products MOD16A2GF
+``` bash
+python src/scripts/sprint7_unified_benchmark.py --min-n 10
 ```
 
-For multiple products:
+### Sprint 8 advanced evaluation
 
-```bash
-python src/scripts/sprint3_visualization.py --site BFT --products ERA5-LAND FLDAS GLDAS MERRA2 PMLV2
+``` bash
+python src/scripts/sprint8_advanced_visualization.py --min-n 10
 ```
 
-The visualization pipeline reads the corresponding benchmark results and generates standardized artifacts under:
+### Finalization
 
-```text
-results/<SITE>/<PRODUCT>/
+``` bash
+python src/scripts/finalize_openetbench.py --min-n 10
 ```
 
-The extraction, preprocessing, harmonization, benchmarking, and visualization logic is implemented through the reusable modules under `src/`.
+The final benchmark should be run from the project root so that the
+configured relative paths resolve correctly.
 
----
+------------------------------------------------------------------------
+
+# Extensibility
+
+The architecture is designed so that adding a new product primarily
+requires defining how that product is accessed and transformed into the
+common ET representation.
+
+``` text
+New Product
+    │
+    ▼
+Product Metadata / Adapter
+    │
+    ▼
+Extraction / Ingestion
+    │
+    ▼
+Common Harmonization
+    │
+    ▼
+Common Benchmarking
+    │
+    ▼
+Advanced Evaluation
+    │
+    ▼
+Standardized Results
+```
+
+The same design can be extended to additional Flux Tower networks by
+adding observation-specific preprocessing adapters.
+
+------------------------------------------------------------------------
+
+# Research Interpretation and Limitations
+
+OpenETBench is a **benchmarking framework**, not a universal declaration
+of product quality.
+
+The current results are conditioned on:
+
+-   BharatFlux observations,
+-   the available BharatFlux site-years,
+-   the selected temporal harmonization procedures,
+-   the selected minimum-N threshold,
+-   the available product coverage,
+-   and the implemented metric/ranking procedure.
+
+Several important limitations should therefore be kept explicit.
+
+### Unequal temporal coverage
+
+Not every product has valid data for every site and year.
+
+### Unequal sample size
+
+A product with many valid observations is not statistically equivalent
+to a product with only a small number of paired observations.
+
+### Site-based spatial evaluation
+
+The spatial diagnostic maps tower-level benchmark performance. It is not
+a gridded spatial validation.
+
+### Product ranking is conditional
+
+The overall ranking summarizes the current benchmark configuration. It
+should not be interpreted as a universal ranking across all ecosystems,
+climates, years, or geographic regions.
+
+### Correlation is not accuracy
+
+A high correlation can coexist with systematic bias or large absolute
+errors.
+
+### RMSE is not the complete story
+
+A low RMSE does not necessarily mean that a product reproduces seasonal
+structure, interannual variability, or spatial differences correctly.
+
+For these reasons, OpenETBench intentionally combines **coverage
+information, QC, numerical metrics, and multiple diagnostic
+visualizations**.
+
+------------------------------------------------------------------------
+
+# Design Principles
+
+### Common interfaces
+
+Different ET products should be evaluated through consistent interfaces
+wherever possible.
+
+### Product-specific metadata
+
+Product-specific behavior should be expressed through metadata or
+adapters rather than duplicated throughout the pipeline.
+
+### Separation of concerns
+
+Preprocessing, extraction, harmonization, benchmarking, visualization,
+and export remain separate responsibilities.
+
+### Reproducibility
+
+The aligned data, numerical metrics, QC information, and visual
+diagnostics required to inspect the benchmark should be retained.
+
+### Extensibility
+
+New products, sites, observation networks, and evaluation methods should
+be addable without redesigning the entire framework.
+
+### Honest coverage accounting
+
+Missing product/site/year combinations are represented as coverage
+limitations rather than silently imputed.
+
+------------------------------------------------------------------------
 
 # Research Context
 
-OpenETBench is being developed to support systematic evaluation of ET products against ground-based observations.
+OpenETBench was developed to support systematic evaluation of ET
+products against ground-based observations.
 
-The long-term objective is to move beyond isolated pairwise comparisons and establish a reusable framework in which ET products from different methodological families can be evaluated using consistent:
+The completed first version moves beyond isolated pairwise comparisons
+toward a structured benchmark across:
 
-- reference observations,
-- temporal alignment,
-- statistical metrics,
-- visual diagnostics,
-- data structures,
-- result formats.
+``` text
+Product × Site × Year
+        ↓
+Product × Site multi-year
+        ↓
+Product-level comparison
+        ↓
+Advanced temporal / variability / spatial diagnostics
+```
 
-The resulting framework can support larger-scale comparisons across sites, temporal periods, and ET product families.
+This structure provides a foundation for future expansion to:
 
----
+-   additional ET products,
+-   additional Flux Tower networks,
+-   larger geographic domains,
+-   uncertainty-aware benchmarking,
+-   gridded spatial validation,
+-   and more advanced benchmark methodologies.
+
+------------------------------------------------------------------------
 
 # Author
 
-**Adarsh Jha**  
-M.S. Data Science  
+**Adarsh Jha**\
+M.S. Data Science\
 Defence Institute of Advanced Technology (DIAT), Pune
 
-OpenETBench is being developed as part of research on benchmarking global Evapotranspiration products against Flux Tower observations.
+OpenETBench is being developed as part of research on benchmarking
+global Evapotranspiration products against Flux Tower observations.
