@@ -1,0 +1,51 @@
+[
+  {
+    "site": "PVM",
+    "product": "ERA5-LAND",
+    "year": 2017,
+    "stage": "pipeline",
+    "error": "ValueError: ERA5-Land: no valid ET observations were returned for the requested site and period."
+  },
+  {
+    "site": "PVM",
+    "product": "FLDAS",
+    "year": 2017,
+    "stage": "pipeline",
+    "error": "ValueError: FLDAS: no valid ET observations were returned for the requested site and period."
+  },
+  {
+    "site": "PVM",
+    "product": "GLDAS",
+    "year": 2017,
+    "stage": "pipeline",
+    "error": "ValueError: GLDAS: no valid ET observations were returned for the requested site and period."
+  },
+  {
+    "site": "SFT",
+    "product": "MOD16A2GF",
+    "year": 2014,
+    "stage": "pipeline",
+    "error": "ValueError: MOD16A2GF: no valid ET observations were returned for the requested site and period."
+  },
+  {
+    "site": "SFT",
+    "product": "MOD16A2GF",
+    "year": 2015,
+    "stage": "pipeline",
+    "error": "ValueError: MOD16A2GF: no valid ET observations were returned for the requested site and period."
+  },
+  {
+    "site": "SFT",
+    "product": "MOD16A2GF",
+    "year": 2016,
+    "stage": "pipeline",
+    "error": "ValueError: MOD16A2GF: no valid ET observations were returned for the requested site and period."
+  },
+  {
+    "site": "SIT",
+    "product": "FLDAS",
+    "year": 2016,
+    "stage": "pipeline",
+    "error": "ValueError: SIT/FLDAS/2016: no common DoY values after temporal alignment."
+  }
+]
