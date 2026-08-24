@@ -1,0 +1,18 @@
+{
+  "sprint": 8,
+  "minimum_n": 10,
+  "primary_site_product_records": 73,
+  "raw_extraction_pairs": 27255,
+  "outputs": {
+    "taylor": "E:\\GRAVITY\\IITM-Pune\\OpenETBench\\results\\summary\\sprint8\\figures\\taylor_diagram.png",
+    "seasonal_cycle": "E:\\GRAVITY\\IITM-Pune\\OpenETBench\\results\\summary\\sprint8\\figures\\seasonal_cycle.png",
+    "interannual_variability": "E:\\GRAVITY\\IITM-Pune\\OpenETBench\\results\\summary\\sprint8\\figures\\interannual_variability.png",
+    "spatial_performance": "E:\\GRAVITY\\IITM-Pune\\OpenETBench\\results\\summary\\sprint8\\figures\\spatial_performance.png"
+  },
+  "interpretation_notes": [
+    "Taylor statistics use site-level normalized standard deviation ratios and correlations, summarized by product using medians.",
+    "Seasonal-cycle curves are standardized within each Site \u00d7 Product pair before pooling, so the figure compares timing and shape rather than raw magnitude across native temporal resolutions.",
+    "Interannual variability is shown as standardized annual anomalies because available years and native sampling differ among products.",
+    "The spatial panel is a site-wise performance map (RMSE), not a gridded ET spatial-pattern evaluation; gridded spatial validation is outside the current site-based benchmark design."
+  ]
+}
