@@ -2,7 +2,7 @@
   "sprint": 7,
   "minimum_n": 10,
   "year_level": {
-    "records": 78,
+    "records": 193,
     "sites": [
       "BFT",
       "BIT",
@@ -12,6 +12,7 @@
       "KKM",
       "KNP",
       "NIT",
+      "PVM",
       "SFT",
       "SIT",
       "UIT"
@@ -34,9 +35,9 @@
     ]
   },
   "multi_year": {
-    "site_product_records": 69,
-    "primary_records": 60,
-    "reference_only_records": 9
+    "site_product_records": 73,
+    "primary_records": 73,
+    "reference_only_records": 0
   },
   "methodology": {
     "year_level_qc": "N >= 10 is eligible for primary comparison",
@@ -51,8 +52,8 @@
     "coverage_rule": "Products retain their actual available years; missing product years are not imputed."
   },
   "limitations": [
-    "The current GEE benchmark is the 2016 common-year layer.",
-    "SSEBop contributes its 2014\u20132018 year-level benchmark.",
-    "Therefore multi-year product coverage is asymmetric until additional GEE years are benchmarked."
+    "The GEE layer uses the available BharatFlux site-years from 2014\u20132018.",
+    "SSEBop contributes its available 2014\u20132018 year-level benchmark.",
+    "Products retain asymmetric coverage where BharatFlux site-years or product observations are unavailable."
   ]
 }
