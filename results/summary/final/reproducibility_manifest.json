@@ -1,0 +1,29 @@
+{
+  "project": "OpenETBench",
+  "generated_utc": "2026-08-24T14:41:34.862340+00:00",
+  "minimum_n_primary": 10,
+  "python": "3.12.2",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "git_commit": "710e631311b384e584932c68cd3cdf494dc61812",
+  "git_branch": "main",
+  "sprint7_unified": "7",
+  "sprint8": "8",
+  "bharatflux_years": "2014-2018 (site-dependent coverage)",
+  "products": [
+    "ERA5-LAND",
+    "FLDAS",
+    "GLDAS",
+    "MERRA2",
+    "MOD16A2GF",
+    "PMLV2",
+    "SSEBOP_V61"
+  ],
+  "outputs": {
+    "year_benchmark": "benchmark_tables/site_product_year_benchmark.csv",
+    "multiyear_benchmark": "benchmark_tables/site_product_multiyear_benchmark.csv",
+    "multiyear_qc": "benchmark_tables/site_product_multiyear_qc.csv",
+    "product_ranking": "benchmark_tables/product_multiyear_ranking.csv",
+    "coverage": "benchmark_tables/product_year_site_coverage.csv",
+    "sprint8_diagnostics": "sprint8_diagnostics/"
+  }
+}
