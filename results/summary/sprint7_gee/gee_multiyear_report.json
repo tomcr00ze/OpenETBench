@@ -1,0 +1,93 @@
+{
+  "sprint": 7,
+  "layer": "GEE_MULTI_YEAR",
+  "sites": [
+    "BFT",
+    "BIT",
+    "BKC",
+    "DIT",
+    "JIT",
+    "KKM",
+    "KNP",
+    "NIT",
+    "PVM",
+    "SFT",
+    "SIT",
+    "UIT"
+  ],
+  "requested_years": [
+    2014,
+    2015,
+    2016,
+    2017,
+    2018
+  ],
+  "products": [
+    "MOD16A2GF",
+    "ERA5-LAND",
+    "FLDAS",
+    "GLDAS",
+    "MERRA2",
+    "PMLV2"
+  ],
+  "yearly_records": 179,
+  "primary_year_records": 165,
+  "failures": 7,
+  "available_site_years": {
+    "BFT": [
+      2016,
+      2017,
+      2018
+    ],
+    "BIT": [
+      2016,
+      2017
+    ],
+    "BKC": [
+      2014,
+      2015,
+      2016
+    ],
+    "DIT": [
+      2016,
+      2017
+    ],
+    "JIT": [
+      2016,
+      2017,
+      2018
+    ],
+    "KKM": [
+      2014,
+      2015,
+      2016
+    ],
+    "KNP": [
+      2016,
+      2017,
+      2018
+    ],
+    "NIT": [
+      2016,
+      2017,
+      2018
+    ],
+    "PVM": [
+      2017
+    ],
+    "SFT": [
+      2014,
+      2015,
+      2016
+    ],
+    "SIT": [
+      2016,
+      2017,
+      2018
+    ],
+    "UIT": [
+      2016,
+      2017
+    ]
+  }
+}
